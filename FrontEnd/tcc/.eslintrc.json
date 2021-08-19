@@ -34,13 +34,16 @@
           ]
         }
       ],
-      "react/react-in-jsx-scope": "off",
       "no-use-before-define": "off",
+      "react/react-in-jsx-scope": "off",
       "import/prefer-default-export": "off",
       "react/self-closing-comp": "off",
       "react/button-has-type": "off",
       "react/jsx-props-no-spreading": "off",
       "react/prop-types" : "off",
+      "@typescript-eslint/ban-types":"off",
+      "@typescript-eslint/no-unused-vars":"off",
+      "no-unused-vars":"off",
       "@typescript-eslint/no-use-before-define": [
         "error"
       ],

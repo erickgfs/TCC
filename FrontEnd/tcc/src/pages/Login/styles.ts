@@ -6,10 +6,10 @@ export const TitleContainer = styled.div`
 `;
 
 export const Img = styled.img`
-  width: 200px;
+  width: 400px;
 `;
 
-export const Form = styled.form`
+export const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   border: 1px solid;
