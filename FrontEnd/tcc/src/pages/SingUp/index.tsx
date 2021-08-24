@@ -23,7 +23,7 @@ const SingUp: React.FC = () => {
         <FormContainer>
           <h1>Cadastro de médico</h1>
           <Input name="name" icon={FiUser} placeholder="Nome"></Input>
-          <Input name="cpf" icon={FiEdit} placeholder="CPF"></Input>
+          <Input name="crm" icon={FiEdit} placeholder="CRM"></Input>
           <Input name="email" icon={FiMail} placeholder="E-mail"></Input>
           <Input
             name="password"
