@@ -4,6 +4,7 @@ import {
   FiUser,
   FiEdit3,
   FiMap,
+  FiMapPin,
   FiBookmark,
   FiArrowLeft,
 } from 'react-icons/fi';
@@ -92,7 +93,7 @@ const Registration: React.FC = () => {
             {visitMunicipios.map((municipio: any, index: any) => (
               <Input
                 name="visitMunicipio"
-                icon={FiUser}
+                icon={FiMapPin}
                 placeholder="Município"
               ></Input>
             ))}
