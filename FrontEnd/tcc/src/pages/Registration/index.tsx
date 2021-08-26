@@ -21,14 +21,35 @@ import Button from '../../components/Button';
 const Registration: React.FC = () => {
   const [visitMunicipios, setVisitMunicipios] = useState<any>([]);
 
-  function handleSubmit(data: object): void {
+  interface DataFormats {
+    nome: string;
+    cpf: string;
+    municipio: string;
+    dataNascimento: string;
+    visitMunicipio: any;
+  }
+
+  function handleSubmit(data: DataFormats): void {
+    const visitados: any = [];
+    const visitadosValue: any = [];
+
+    for (let i = 0; i < visitMunicipios.length; i += 1) {
+      visitados.push(
+        document.getElementById('visitMunicipio')?.children[i].children[1],
+      );
+
+      visitadosValue.push(visitados[i].value);
+    }
+
+    data.visitMunicipio = visitadosValue;
+
     console.log(data);
   }
 
   const addVisitMunicipios = (e: any) => {
     e.preventDefault();
-
-    setVisitMunicipios([...visitMunicipios, '']);
+    if (visitMunicipios.length < 3)
+      setVisitMunicipios([...visitMunicipios, '']);
   };
 
   const removeVisitMunicipios = (e: any) => {
@@ -67,7 +88,7 @@ const Registration: React.FC = () => {
               -
             </Button>
           </EstadosContainer>
-          <VisitMunicipiosDiv>
+          <VisitMunicipiosDiv id="visitMunicipio">
             {visitMunicipios.map((municipio: any, index: any) => (
               <Input
                 name="visitMunicipio"
