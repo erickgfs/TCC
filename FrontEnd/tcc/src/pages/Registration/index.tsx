@@ -9,10 +9,13 @@ import {
   FiArrowLeft,
 } from 'react-icons/fi';
 
+import { todosMunicipios } from '../../Auxiliar';
+
 import {
   Container,
   FormContent,
   EstadosContainer,
+  EstadosVisitados,
   VisitMunicipiosDiv,
 } from './styled';
 
@@ -21,6 +24,8 @@ import Button from '../../components/Button';
 
 const Registration: React.FC = () => {
   const [visitMunicipios, setVisitMunicipios] = useState<any>([]);
+  const [sugestaoMunicipios, setSugestaoMunicipios] = useState<any>([]);
+  const [searchValues, setSearchValues] = useState<any>([]);
 
   interface DataFormats {
     nome: string;
@@ -31,32 +36,54 @@ const Registration: React.FC = () => {
   }
 
   function handleSubmit(data: DataFormats): void {
-    const visitados: any = [];
-    const visitadosValue: any = [];
-
-    for (let i = 0; i < visitMunicipios.length; i += 1) {
-      visitados.push(
-        document.getElementById('visitMunicipio')?.children[i].children[1],
-      );
-
-      visitadosValue.push(visitados[i].value);
-    }
-
-    data.visitMunicipio = visitadosValue;
+    data.visitMunicipio = searchValues;
 
     console.log(data);
   }
+  const handleSugestion = (searchValue: any) => {
+    return todosMunicipios.filter(valor => {
+      const valorMinusculo = valor.toLowerCase();
+      const cidadeMinusculo = searchValue.toLowerCase();
 
-  const addVisitMunicipios = (e: any) => {
+      return valorMinusculo.includes(cidadeMinusculo);
+    });
+  };
+
+  const autoComplete = (e: any) => {
+    setSugestaoMunicipios(handleSugestion(e.target.value));
+    console.log(sugestaoMunicipios);
+  };
+
+  const changeInput = (e: any) => {
+    if (searchValues.length < 3) {
+      if (!searchValues.includes(e.target.value)) {
+        setSearchValues([...searchValues, e.target.value]);
+      }
+    }
+  };
+
+  const addSearchVisitMunicipios = (e: any) => {
     e.preventDefault();
-    if (visitMunicipios.length < 3)
+    if (visitMunicipios.length < 1)
       setVisitMunicipios([...visitMunicipios, '']);
+  };
+
+  const removeSearchVisitMunicipios = (e: any) => {
+    e.preventDefault();
+
+    setVisitMunicipios(visitMunicipios.splice(1, visitMunicipios.length));
   };
 
   const removeVisitMunicipios = (e: any) => {
     e.preventDefault();
 
-    setVisitMunicipios(visitMunicipios.splice(1, visitMunicipios.length));
+    console.log('teste', e.target.value);
+
+    if (searchValues.includes(e.target.value)) {
+      setSearchValues(
+        searchValues.filter((values: string) => values !== e.target.value),
+      );
+    }
   };
 
   return (
@@ -80,22 +107,61 @@ const Registration: React.FC = () => {
               placeholder="Data de Nascimento"
             ></Input>
           </div>
+          <EstadosVisitados>
+            <h1>Estados visitados: </h1>
+            {searchValues.length > 0 &&
+              searchValues.map((value: string) => {
+                return (
+                  <>
+                    <div id="visitMunicipio">
+                      {value}
+                      <Button
+                        type="button"
+                        onClick={removeVisitMunicipios}
+                        value={value}
+                      >
+                        -
+                      </Button>
+                    </div>
+                  </>
+                );
+              })}
+          </EstadosVisitados>
           <EstadosContainer>
             <h2>Visitou outro município?</h2>
-            <Button type="button" onClick={addVisitMunicipios}>
+            <Button type="button" onClick={addSearchVisitMunicipios}>
               +
             </Button>
-            <Button type="button" onClick={removeVisitMunicipios}>
+            <Button type="button" onClick={removeSearchVisitMunicipios}>
               -
             </Button>
           </EstadosContainer>
-          <VisitMunicipiosDiv id="visitMunicipio">
-            {visitMunicipios.map((municipio: any, index: any) => (
-              <Input
-                name="visitMunicipio"
-                icon={FiMapPin}
-                placeholder="Município"
-              ></Input>
+          <VisitMunicipiosDiv>
+            {visitMunicipios.map((municipio: any) => (
+              <>
+                <Input
+                  key={municipio}
+                  onChange={autoComplete}
+                  name="visitMunicipio"
+                  icon={FiMapPin}
+                  placeholder="Pesquisar município"
+                ></Input>
+                <div>
+                  {sugestaoMunicipios.length < 3 &&
+                    sugestaoMunicipios.map((sugestao: any) => {
+                      return (
+                        <button
+                          type="button"
+                          key={sugestao}
+                          onClick={changeInput}
+                          value={sugestao}
+                        >
+                          {sugestao}
+                        </button>
+                      );
+                    })}
+                </div>
+              </>
             ))}
           </VisitMunicipiosDiv>
           <Button type="submit">Cadastrar</Button>

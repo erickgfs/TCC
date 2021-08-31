@@ -39,11 +39,29 @@ export const FormContent = styled.div`
 
   div {
     display: flex;
-    place-self: center;
+    /* place-self: center; */
     margin: 5px;
 
     div {
       align-items: center;
+    }
+  }
+`;
+
+export const EstadosVisitados = styled.div`
+  display: flex;
+  text-align: left;
+  flex-direction: column;
+  align-self: auto;
+  font-size: 20px;
+
+  button {
+    background-color: red;
+    padding: 3px 12px;
+    font-size: 20px;
+
+    &:hover {
+      background-color: ${shade(0.2, 'red')};
     }
   }
 `;
