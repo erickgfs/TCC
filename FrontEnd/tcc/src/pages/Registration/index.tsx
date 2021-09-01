@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Form } from '@unform/web';
 import {
   FiUser,
@@ -9,7 +9,7 @@ import {
   FiArrowLeft,
 } from 'react-icons/fi';
 
-import { todosMunicipios } from '../../Auxiliar';
+import { todosMunicipios, siglasEstados } from '../../Auxiliar';
 
 import {
   Container,
@@ -17,6 +17,7 @@ import {
   EstadosContainer,
   EstadosVisitados,
   VisitMunicipiosDiv,
+  DivButtonsSearch,
 } from './styled';
 
 import Input from '../../components/Input';
@@ -49,9 +50,14 @@ const Registration: React.FC = () => {
     });
   };
 
+  const disabledPlaceHolder = useCallback(() => {
+    document
+      .getElementById('placeHolderEstado')
+      ?.setAttribute('disabled', 'true');
+  }, []);
+
   const autoComplete = (e: any) => {
     setSugestaoMunicipios(handleSugestion(e.target.value));
-    console.log(sugestaoMunicipios);
   };
 
   const changeInput = (e: any) => {
@@ -71,13 +77,16 @@ const Registration: React.FC = () => {
   const removeSearchVisitMunicipios = (e: any) => {
     e.preventDefault();
 
+    document
+      .getElementById('placeHolderEstado')
+      ?.setAttribute('disabled', 'false');
+
     setVisitMunicipios(visitMunicipios.splice(1, visitMunicipios.length));
+    setSugestaoMunicipios([]);
   };
 
   const removeVisitMunicipios = (e: any) => {
     e.preventDefault();
-
-    console.log('teste', e.target.value);
 
     if (searchValues.includes(e.target.value)) {
       setSearchValues(
@@ -108,7 +117,7 @@ const Registration: React.FC = () => {
             ></Input>
           </div>
           <EstadosVisitados>
-            <h1>Estados visitados: </h1>
+            <h1>Estados Visitados:</h1>
             {searchValues.length > 0 &&
               searchValues.map((value: string) => {
                 return (
@@ -139,14 +148,23 @@ const Registration: React.FC = () => {
           <VisitMunicipiosDiv>
             {visitMunicipios.map((municipio: any) => (
               <>
-                <Input
-                  key={municipio}
-                  onChange={autoComplete}
-                  name="visitMunicipio"
-                  icon={FiMapPin}
-                  placeholder="Pesquisar município"
-                ></Input>
                 <div>
+                  <select onChange={disabledPlaceHolder}>
+                    <option id="placeHolderEstado">Estado</option>
+                    {siglasEstados &&
+                      siglasEstados.map((estado: string) => (
+                        <option key={estado}>{estado}</option>
+                      ))}
+                  </select>
+                  <Input
+                    key={municipio}
+                    onChange={autoComplete}
+                    name="visitMunicipio"
+                    icon={FiMapPin}
+                    placeholder="Pesquisar município"
+                  ></Input>
+                </div>
+                <DivButtonsSearch>
                   {sugestaoMunicipios.length < 3 &&
                     sugestaoMunicipios.map((sugestao: any) => {
                       return (
@@ -160,7 +178,7 @@ const Registration: React.FC = () => {
                         </button>
                       );
                     })}
-                </div>
+                </DivButtonsSearch>
               </>
             ))}
           </VisitMunicipiosDiv>

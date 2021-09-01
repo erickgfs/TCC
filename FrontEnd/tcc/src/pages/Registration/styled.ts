@@ -68,8 +68,37 @@ export const EstadosVisitados = styled.div`
 
 export const VisitMunicipiosDiv = styled.div`
   display: flex;
+  flex-direction: column;
   place-content: center;
   flex-wrap: wrap;
+
+  select {
+    width: fit-content;
+    height: 71px;
+    align-self: center;
+    text-align-last: center;
+    font-size: 30px;
+    background-color: #fafafa;
+    border-radius: 10px;
+    border: 1px solid #000000;
+    margin: 5px;
+    padding: 10px;
+  }
+`;
+
+export const DivButtonsSearch = styled.div`
+  display: flex;
+  place-content: center;
+  flex-wrap: wrap;
+
+  button {
+    margin: 5px;
+    padding: 10px;
+    font-weight: bold;
+    color: #ffffff;
+    background: #2ebff1;
+    border-radius: 5px;
+  }
 `;
 
 export const EstadosContainer = styled.div`
