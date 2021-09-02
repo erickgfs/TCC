@@ -27,6 +27,7 @@ const Registration: React.FC = () => {
   const [visitMunicipios, setVisitMunicipios] = useState<any>([]);
   const [sugestaoMunicipios, setSugestaoMunicipios] = useState<any>([]);
   const [searchValues, setSearchValues] = useState<any>([]);
+  const [searchValuesState, setSearchValuesState] = useState<any>([]);
 
   interface DataFormats {
     nome: string;
@@ -34,10 +35,12 @@ const Registration: React.FC = () => {
     municipio: string;
     dataNascimento: string;
     visitMunicipio: any;
+    visitEstado: any;
   }
 
   function handleSubmit(data: DataFormats): void {
     data.visitMunicipio = searchValues;
+    data.visitEstado = searchValuesState;
 
     console.log(data);
   }
@@ -63,7 +66,11 @@ const Registration: React.FC = () => {
   const changeInput = (e: any) => {
     if (searchValues.length < 3) {
       if (!searchValues.includes(e.target.value)) {
+        const estado = (
+          document.getElementById('select-estado') as HTMLInputElement
+        ).value;
         setSearchValues([...searchValues, e.target.value]);
+        setSearchValuesState([...searchValuesState, estado]);
       }
     }
   };
@@ -89,6 +96,11 @@ const Registration: React.FC = () => {
     e.preventDefault();
 
     if (searchValues.includes(e.target.value)) {
+      const indexArray = searchValues.indexOf(e.target.value);
+      console.log('teste', indexArray);
+      searchValuesState.splice(indexArray, 1);
+      setSearchValuesState(searchValuesState);
+
       setSearchValues(
         searchValues.filter((values: string) => values !== e.target.value),
       );
@@ -119,11 +131,11 @@ const Registration: React.FC = () => {
           <EstadosVisitados>
             <h1>Estados Visitados:</h1>
             {searchValues.length > 0 &&
-              searchValues.map((value: string) => {
+              searchValues.map((value: string, index: number) => {
                 return (
                   <>
                     <div id="visitMunicipio">
-                      {value}
+                      {searchValuesState[index]} - {value}
                       <Button
                         type="button"
                         onClick={removeVisitMunicipios}
@@ -149,7 +161,7 @@ const Registration: React.FC = () => {
             {visitMunicipios.map((municipio: any) => (
               <>
                 <div>
-                  <select onChange={disabledPlaceHolder}>
+                  <select id="select-estado" onChange={disabledPlaceHolder}>
                     <option id="placeHolderEstado">Estado</option>
                     {siglasEstados &&
                       siglasEstados.map((estado: string) => (
