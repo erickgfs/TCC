@@ -97,7 +97,6 @@ const Registration: React.FC = () => {
 
     if (searchValues.includes(e.target.value)) {
       const indexArray = searchValues.indexOf(e.target.value);
-      console.log('teste', indexArray);
       searchValuesState.splice(indexArray, 1);
       setSearchValuesState(searchValuesState);
 

@@ -961,3 +961,18 @@ export const siglasEstados = [
   'TO',
   'DF',
 ];
+
+export const sintomas = [
+  'Edema',
+  'Meningoe',
+  'Poliadeno',
+  'Febre',
+  'Hepatome',
+  'Insuficiência Cardíaca Congestiva',
+  'Arritimias',
+  'Astenia Perda de força',
+  'Esplenom',
+  'Chagoma',
+];
+
+export const exames = ['Parasitológico', 'Xenodiagnóstico', 'Histopatológico'];
