@@ -4,13 +4,17 @@ import { FiArrowLeft } from 'react-icons/fi';
 
 import {
   Container,
+  DadosPacienteDiv,
   SintomasExamesDiv,
   SintomasContainer,
   ExamesContainer,
   ResultadoContainer,
+  SelectContainer,
 } from './styled';
 
 import { sintomas, exames } from '../../Auxiliar';
+
+import Button from '../../components/Button';
 
 const Informations: React.FC = () => {
   const [edema, setEdema] = useState('Ignorado');
@@ -224,7 +228,7 @@ const Informations: React.FC = () => {
 
   return (
     <Container>
-      <div>
+      <DadosPacienteDiv>
         <div>
           <div>Nome: Farmacia Gostoso</div>
           <div>CPF: 101.101.101-24</div>
@@ -236,7 +240,7 @@ const Informations: React.FC = () => {
         <div>
           Municipios Visitados: Margarina delicia, Mecanica, casa do Paulo Guina
         </div>
-      </div>
+      </DadosPacienteDiv>
       <SintomasExamesDiv>
         <SintomasContainer>
           <div>Edema: {edema}</div>
@@ -251,36 +255,44 @@ const Informations: React.FC = () => {
           <div>Astenia Perda de Força: {asteniaPerdaDeForça}</div>
           <div>Esplenom: {esplenom}</div>
           <div>Chagoma: {chagoma}</div>
-          <select id="sintomaSelect">
-            {sintomas &&
-              sintomas.map((sintoma: string) => (
-                <option key={sintoma}>{sintoma}</option>
-              ))}
-          </select>
-          <button onClick={setPositive}>Sim</button>
-          <button onClick={setNegative}>Não</button>
+          <SelectContainer>
+            <select id="sintomaSelect">
+              {sintomas &&
+                sintomas.map((sintoma: string) => (
+                  <option key={sintoma}>{sintoma}</option>
+                ))}
+            </select>
+            <div>
+              <button onClick={setPositive}>Sim</button>
+              <button onClick={setNegative}>Não</button>
+            </div>
+          </SelectContainer>
         </SintomasContainer>
         <ExamesContainer>
           <div>Parasitológico: {parasitológico}</div>
           <div>Parasitológico Xenodiagnóstico: {xenodiagnóstico}</div>
           <div>Histopatológico: {histopatológico}</div>
-          <select id="exameSelect">
-            {exames &&
-              exames.map((exame: string) => (
-                <option key={exame}>{exame}</option>
-              ))}
-          </select>
-          <button onClick={setPositiveExame}>Positivo</button>
-          <button onClick={setNegativeExame}>Negativo</button>
-          <button onClick={setNotAccomplishedExame}>Pendente</button>
+          <SelectContainer>
+            <select id="exameSelect">
+              {exames &&
+                exames.map((exame: string) => (
+                  <option key={exame}>{exame}</option>
+                ))}
+            </select>
+            <div>
+              <button onClick={setPositiveExame}>Positivo</button>
+              <button onClick={setNegativeExame}>Negativo</button>
+              <button onClick={setNotAccomplishedExame}>Pendente</button>
+            </div>
+          </SelectContainer>
         </ExamesContainer>
       </SintomasExamesDiv>
       <ResultadoContainer>
         <div>Resultado: {resultado}</div>
       </ResultadoContainer>
-      <button type="button" onClick={handleSubmit}>
+      <Button type="button" onClick={handleSubmit}>
         Atualizar
-      </button>
+      </Button>
       <a href="/search">
         <FiArrowLeft />
         Voltar

@@ -39,7 +39,6 @@ export const FormContent = styled.div`
 
   div {
     display: flex;
-    /* place-self: center; */
     margin: 5px;
 
     div {
