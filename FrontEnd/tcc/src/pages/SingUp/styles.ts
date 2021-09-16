@@ -15,6 +15,8 @@ export const FormContainer = styled.div`
   border: 1px solid;
   border-radius: 5px;
   margin: 50px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
 
   h1 {
     align-self: center;

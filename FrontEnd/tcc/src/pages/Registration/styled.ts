@@ -82,6 +82,8 @@ export const VisitMunicipiosDiv = styled.div`
     border: 1px solid #000000;
     margin: 5px;
     padding: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
   }
 `;
 

@@ -6,14 +6,18 @@ import SingUp from '../pages/SingUp';
 import Search from '../pages/Search';
 import Registration from '../pages/Registration';
 import Informations from '../pages/Informations';
+import AdmMenu from '../pages/AdmMenu';
+import Documentation from '../pages/Documentation';
 
 const Routes: React.FC = () => (
   <Switch>
     <Route path="/" exact component={Login} />
-    <Route path="/singup" component={SingUp} />
+    <Route path="/sing-up" component={SingUp} />
     <Route path="/search" component={Search} />
     <Route path="/registration" component={Registration} />
     <Route path="/information" component={Informations} />
+    <Route path="/adm-menu" component={AdmMenu} />
+    <Route path="/documentation" component={Documentation} />
   </Switch>
 );
 

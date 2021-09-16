@@ -17,7 +17,7 @@ import { sintomas, exames } from '../../Auxiliar';
 import Button from '../../components/Button';
 
 const Informations: React.FC = () => {
-  const [edema, setEdema] = useState('Ignorado');
+  const [edema, setEdema] = useState('---');
   const [meningoe, setMeningoe] = useState('Ignorado');
   const [poliadeno, setPoliadeno] = useState('Ignorado');
   const [febre, setFebre] = useState('Ignorado');
@@ -263,8 +263,12 @@ const Informations: React.FC = () => {
                 ))}
             </select>
             <div>
-              <button onClick={setPositive}>Sim</button>
-              <button onClick={setNegative}>Não</button>
+              <button className="positive-buttom" onClick={setPositive}>
+                Sim
+              </button>
+              <button className="negative-buttom" onClick={setNegative}>
+                Não
+              </button>
             </div>
           </SelectContainer>
         </SintomasContainer>
@@ -280,9 +284,18 @@ const Informations: React.FC = () => {
                 ))}
             </select>
             <div>
-              <button onClick={setPositiveExame}>Positivo</button>
-              <button onClick={setNegativeExame}>Negativo</button>
-              <button onClick={setNotAccomplishedExame}>Pendente</button>
+              <button className="positive-buttom" onClick={setPositiveExame}>
+                Positivo
+              </button>
+              <button className="negative-buttom" onClick={setNegativeExame}>
+                Negativo
+              </button>
+              <button
+                className="pendente-buttom"
+                onClick={setNotAccomplishedExame}
+              >
+                Pendente
+              </button>
             </div>
           </SelectContainer>
         </ExamesContainer>
