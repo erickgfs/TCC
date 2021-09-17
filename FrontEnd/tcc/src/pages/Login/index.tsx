@@ -4,7 +4,7 @@ import { Form } from '@unform/web';
 
 import { TitleContainer, Img, FormContainer } from './styles';
 
-import Logotipo from '../../assets/Logotipo-2.png';
+import Logotipo from '../../assets/Coracao-logo.png';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';

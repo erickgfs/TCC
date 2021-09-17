@@ -4,6 +4,11 @@ import { shade } from 'polished';
 export const Container = styled.div`
   display: flex;
   flex-direction: column;
+  background-color: #404040;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 5px 5px 2px 1px rgba(0, 0, 0, 0.2);
+  color: #d3d3d3;
+  padding: 20px;
 
   a {
     display: flex;
@@ -11,7 +16,7 @@ export const Container = styled.div`
     align-self: center;
     text-decoration: none;
     font-weight: bold;
-    color: #555555;
+    color: #fff000;
     transition: color 0.2s;
 
     &:hover {
@@ -25,7 +30,7 @@ export const Container = styled.div`
 `;
 
 export const DadosPacienteDiv = styled.div`
-  margin-left: 75px;
+  margin-left: 50px;
   font-size: 20px;
   margin-bottom: 10px;
 `;
@@ -42,8 +47,9 @@ export const SintomasContainer = styled.div`
   margin: 10px 20px;
   font-size: 18px;
   min-width: 380px;
-  box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
+  background-color: #404040;
   border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 5px 5px 2px 1px rgba(0, 0, 0, 0.2);
 
   div {
     padding: 2px;
@@ -57,8 +63,9 @@ export const ExamesContainer = styled.div`
   margin: 10px 20px;
   font-size: 18px;
   min-width: 380px;
-  box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
+  background-color: #404040;
   border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 5px 5px 2px 1px rgba(0, 0, 0, 0.2);
 
   div {
     padding: 2px;
@@ -71,8 +78,9 @@ export const ResultadoContainer = styled.div`
   padding: 10px;
   margin: 10px 65px;
   font-size: 20px;
-  box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
+  background-color: #404040;
   border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 5px 5px 2px 1px rgba(0, 0, 0, 0.2);
 
   div {
     padding: 2px;
@@ -95,7 +103,7 @@ export const SelectContainer = styled.div`
     padding: 5px;
     background: #efefef;
     box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border: 3px solid rgba(0, 0, 0, 0.2);
 
     &:hover {
       border-color: #00dcb6;

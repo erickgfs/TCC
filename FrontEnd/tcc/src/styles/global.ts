@@ -1,6 +1,6 @@
 import { createGlobalStyle } from 'styled-components';
 
-import mosquitoBackgroud from '../assets/mosquito-background.jpg';
+import mosquitoBackgroud from '../assets/Background.png';
 
 export default createGlobalStyle`
   * {
@@ -12,7 +12,7 @@ export default createGlobalStyle`
 
   body {
     height: 100vh;
-    background: #ffffff url(${mosquitoBackgroud}) no-repeat left bottom;
+    background: #ffffff url(${mosquitoBackgroud}) left bottom;
     -webkit-font-smoothing: antialiased;
   }
 

@@ -9,10 +9,9 @@ export const Container = styled.div<ContainerProps>`
   background: #fafafa;
   padding: 16px;
   border-radius: 10px;
-  border: 1px solid #000000;
   align-self: center;
   margin: 15px 30px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 3px solid rgba(0, 0, 0, 0.2);
   box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
 
   ${props =>
