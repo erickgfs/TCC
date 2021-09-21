@@ -8,9 +8,26 @@ import Logotipo from '../../assets/Coracao-logo.png';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import api from '../../services/api';
 
 const Login: React.FC = () => {
   function handleSubmit(data: object): void {
+    // api.post('/auth', data).then(response => {
+    //   console.log(response.data);
+
+    //   const user = {
+    //     token: response.data.token,
+    //   };
+    // });
+
+    api.get('/municipios').then(response => {
+      console.log(response.data);
+
+      // const user = {
+      //   token: response.data.token,
+      // };
+    });
+
     console.log(data);
   }
 

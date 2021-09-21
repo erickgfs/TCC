@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Form } from '@unform/web';
 import {
   FiUser,
@@ -8,8 +8,6 @@ import {
   FiBookmark,
   FiArrowLeft,
 } from 'react-icons/fi';
-
-import { todosMunicipios, siglasEstados } from '../../Auxiliar';
 
 import {
   Container,
@@ -22,10 +20,13 @@ import {
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import api from '../../services/api';
 
 const Registration: React.FC = () => {
   const [visitMunicipios, setVisitMunicipios] = useState<any>([]);
+  const [siglasEstados, setSiglasEstados] = useState<any>([]);
   const [sugestaoMunicipios, setSugestaoMunicipios] = useState<any>([]);
+  const [filterMunicipios, setFilterMunicipios] = useState<any>([]);
   const [searchValues, setSearchValues] = useState<any>([]);
   const [searchValuesState, setSearchValuesState] = useState<any>([]);
 
@@ -38,28 +39,56 @@ const Registration: React.FC = () => {
     visitEstado: any;
   }
 
+  useEffect(() => {
+    api.get('/states').then(response => {
+      setSiglasEstados(response.data.data);
+    });
+  }, []);
+
   function handleSubmit(data: DataFormats): void {
     data.visitMunicipio = searchValues;
     data.visitEstado = searchValuesState;
 
     console.log(data);
   }
+
   const handleSugestion = (searchValue: any) => {
-    return todosMunicipios.filter(valor => {
-      const valorMinusculo = valor.toLowerCase();
+    return filterMunicipios.filter((valor: any) => {
+      const valorMinusculo = valor.name.toLowerCase();
       const cidadeMinusculo = searchValue.toLowerCase();
 
       return valorMinusculo.includes(cidadeMinusculo);
     });
   };
 
-  const disabledPlaceHolder = useCallback(() => {
-    document
-      .getElementById('placeHolderEstado')
-      ?.setAttribute('disabled', 'true');
-  }, []);
+  const disabledPlaceHolder = useCallback(
+    (e: any) => {
+      const estadoSelected = siglasEstados.filter((estado: any) => {
+        const valorMinusculo = estado.initials.toLowerCase();
+        const estadoMinusculo = e.target.value.toLowerCase();
+
+        return valorMinusculo.includes(estadoMinusculo);
+      });
+
+      api.get(`/municipios/${estadoSelected[0].id}`).then(response => {
+        setFilterMunicipios(response.data.data);
+        console.log(response.data.data);
+      });
+
+      (document.getElementById('municipioPesquisa') as HTMLInputElement).value =
+        '';
+
+      setSugestaoMunicipios([]);
+
+      document
+        .getElementById('placeHolderEstado')
+        ?.setAttribute('disabled', 'true');
+    },
+    [siglasEstados],
+  );
 
   const autoComplete = (e: any) => {
+    console.log(handleSugestion(e.target.value));
     setSugestaoMunicipios(handleSugestion(e.target.value));
   };
 
@@ -163,11 +192,12 @@ const Registration: React.FC = () => {
                   <select id="select-estado" onChange={disabledPlaceHolder}>
                     <option id="placeHolderEstado">Estado</option>
                     {siglasEstados &&
-                      siglasEstados.map((estado: string) => (
-                        <option key={estado}>{estado}</option>
+                      siglasEstados.map((estado: any) => (
+                        <option key={estado.id}>{estado.initials}</option>
                       ))}
                   </select>
                   <Input
+                    id="municipioPesquisa"
                     key={municipio}
                     onChange={autoComplete}
                     name="visitMunicipio"
@@ -176,16 +206,16 @@ const Registration: React.FC = () => {
                   ></Input>
                 </div>
                 <DivButtonsSearch>
-                  {sugestaoMunicipios.length < 3 &&
+                  {sugestaoMunicipios.length < 7 &&
                     sugestaoMunicipios.map((sugestao: any) => {
                       return (
                         <button
                           type="button"
-                          key={sugestao}
+                          key={sugestao.id}
                           onClick={changeInput}
-                          value={sugestao}
+                          value={sugestao.name}
                         >
-                          {sugestao}
+                          {sugestao.name}
                         </button>
                       );
                     })}
