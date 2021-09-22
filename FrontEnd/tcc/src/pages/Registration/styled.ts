@@ -45,6 +45,23 @@ export const FormContent = styled.div`
   flex-direction: column;
   color: #d3d3d3;
 
+  select {
+    width: 50%;
+    height: 71px;
+    font-size: 30px;
+    background-color: #fafafa;
+    border-radius: 10px;
+    border: 1px solid #000000;
+    margin: 5px;
+    padding: 10px 50px;
+    border: 3px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      border-color: #00dcb6;
+    }
+  }
+
   div {
     display: flex;
     margin: 5px;

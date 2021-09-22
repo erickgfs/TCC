@@ -156,7 +156,26 @@ const Registration: React.FC = () => {
               placeholder="Data de Nascimento"
             ></Input>
           </div>
-          <EstadosVisitados>
+          <div>
+            <select id="select-sexo">
+              <option disabled selected>
+                Sexo
+              </option>
+              <option>Masculino</option>
+              <option>Feminino</option>
+            </select>
+            <select id="select-raca">
+              <option disabled selected>
+                Raça
+              </option>
+              <option>Branco</option>
+              <option>Negro</option>
+              <option>Amarelo</option>
+              <option>Pardo</option>
+            </select>
+          </div>
+
+          {/* <EstadosVisitados>
             <h1>Estados Visitados:</h1>
             {searchValues.length > 0 &&
               searchValues.map((value: string, index: number) => {
@@ -175,8 +194,8 @@ const Registration: React.FC = () => {
                   </>
                 );
               })}
-          </EstadosVisitados>
-          <EstadosContainer>
+          </EstadosVisitados> */}
+          {/* <EstadosContainer>
             <h2>Visitou outro município?</h2>
             <Button type="button" onClick={addSearchVisitMunicipios}>
               +
@@ -184,8 +203,8 @@ const Registration: React.FC = () => {
             <Button type="button" onClick={removeSearchVisitMunicipios}>
               -
             </Button>
-          </EstadosContainer>
-          <VisitMunicipiosDiv>
+          </EstadosContainer> */}
+          {/* <VisitMunicipiosDiv>
             {visitMunicipios.map((municipio: any) => (
               <>
                 <div>
@@ -222,7 +241,7 @@ const Registration: React.FC = () => {
                 </DivButtonsSearch>
               </>
             ))}
-          </VisitMunicipiosDiv>
+          </VisitMunicipiosDiv> */}
           <Button type="submit">Cadastrar</Button>
         </FormContent>
       </Form>
