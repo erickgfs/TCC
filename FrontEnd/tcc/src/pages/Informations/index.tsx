@@ -1,20 +1,34 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiMapPin } from 'react-icons/fi';
+import { Form } from '@unform/web';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionItemHeading,
+  AccordionItemButton,
+  AccordionItemPanel,
+} from 'react-accessible-accordion';
 
 import {
   Container,
   DadosPacienteDiv,
-  SintomasExamesDiv,
   SintomasContainer,
+  TitlesAccordion,
   ExamesContainer,
   ResultadoContainer,
+  EstadosVisitados,
+  VisitMunicipiosDiv,
+  SearchDiv,
+  DivButtonsSearch,
   SelectContainer,
 } from './styled';
 
 import { sintomas, exames } from '../../Auxiliar';
 
+import Input from '../../components/Input';
 import Button from '../../components/Button';
+import api from '../../services/api';
 
 const Informations: React.FC = () => {
   const [edema, setEdema] = useState('---');
@@ -31,7 +45,20 @@ const Informations: React.FC = () => {
   const [parasitológico, setParasitológico] = useState('Ignorado');
   const [xenodiagnóstico, setXenodiagnóstico] = useState('Ignorado');
   const [histopatológico, setHistopatológico] = useState('Ignorado');
+  const [gestacao, setGestacao] = useState('Ignorado');
   const [resultado, setResultado] = useState('Fudido');
+  const [visitMunicipios, setVisitMunicipios] = useState<any>([]);
+  const [siglasEstados, setSiglasEstados] = useState<any>([]);
+  const [sugestaoMunicipios, setSugestaoMunicipios] = useState<any>([]);
+  const [filterMunicipios, setFilterMunicipios] = useState<any>([]);
+  const [searchValues, setSearchValues] = useState<any>([]);
+  const [searchValuesState, setSearchValuesState] = useState<any>([]);
+
+  useEffect(() => {
+    api.get('/states').then(response => {
+      setSiglasEstados(response.data.data);
+    });
+  }, []);
 
   function handleSubmit() {
     const data = {
@@ -52,7 +79,10 @@ const Informations: React.FC = () => {
         Parasitológico: parasitológico,
         Xenodiagnóstico: xenodiagnóstico,
         Histopatológico: histopatológico,
+        Gestação: gestacao,
       },
+      visitMunicipio: searchValues,
+      visitEstado: searchValuesState,
     };
 
     console.log(data);
@@ -226,90 +256,260 @@ const Informations: React.FC = () => {
     }
   }, []);
 
+  const changeTime = useCallback((e: any) => {
+    setGestacao(e.target.value);
+  }, []);
+
+  const handleSugestion = (searchValue: any) => {
+    return filterMunicipios.filter((valor: any) => {
+      const valorMinusculo = valor.name.toLowerCase();
+      const cidadeMinusculo = searchValue.toLowerCase();
+
+      return valorMinusculo.includes(cidadeMinusculo);
+    });
+  };
+
+  const disabledPlaceHolder = useCallback(
+    (e: any) => {
+      const estadoSelected = siglasEstados.filter((estado: any) => {
+        const valorMinusculo = estado.initials.toLowerCase();
+        const estadoMinusculo = e.target.value.toLowerCase();
+
+        return valorMinusculo.includes(estadoMinusculo);
+      });
+
+      api.get(`/municipios/${estadoSelected[0].id}`).then(response => {
+        setFilterMunicipios(response.data.data);
+        console.log(response.data.data);
+      });
+
+      (document.getElementById('municipioPesquisa') as HTMLInputElement).value =
+        '';
+
+      setSugestaoMunicipios([]);
+
+      document
+        .getElementById('placeHolderEstado')
+        ?.setAttribute('disabled', 'true');
+    },
+    [siglasEstados],
+  );
+
+  const autoComplete = (e: any) => {
+    console.log(handleSugestion(e.target.value));
+    setSugestaoMunicipios(handleSugestion(e.target.value));
+  };
+
+  const changeInput = (e: any) => {
+    if (searchValues.length < 3) {
+      if (!searchValues.includes(e.target.value)) {
+        const estado = (
+          document.getElementById('select-estado') as HTMLInputElement
+        ).value;
+        setSearchValues([...searchValues, e.target.value]);
+        setSearchValuesState([...searchValuesState, estado]);
+      }
+    }
+  };
+
+  const removeVisitMunicipios = (e: any) => {
+    e.preventDefault();
+
+    if (searchValues.includes(e.target.value)) {
+      const indexArray = searchValues.indexOf(e.target.value);
+      searchValuesState.splice(indexArray, 1);
+      setSearchValuesState(searchValuesState);
+
+      setSearchValues(
+        searchValues.filter((values: string) => values !== e.target.value),
+      );
+    }
+  };
+
   return (
     <Container>
-      <DadosPacienteDiv>
-        <div>
-          <div>Nome: Farmacia Gostoso</div>
-          <div>CPF: 101.101.101-24</div>
-        </div>
-        <div>
-          <div>Data de nascimento: 24/04/1924</div>
-          <div>Municipio Registrado: São Paulo</div>
-        </div>
-        <div>
-          Municipios Visitados: Margarina delicia, Mecanica, casa do Paulo Guina
-        </div>
-      </DadosPacienteDiv>
-      <SintomasExamesDiv>
-        <SintomasContainer>
-          <div>Edema: {edema}</div>
-          <div>Meningoe: {meningoe}</div>
-          <div>Poliadeno: {poliadeno}</div>
-          <div>Febre: {febre}</div>
-          <div>Hepatome: {hepatome}</div>
+      <Form onSubmit={handleSubmit}>
+        <DadosPacienteDiv>
           <div>
-            Insuficiência Cardíaca Congestiva: {insuficiênciaCardíacaCongestiva}
+            <div>Nome: Farmacia Gostoso</div>
+            <div>CPF: 101.101.101-24</div>
           </div>
-          <div>Arritimias: {arritimias}</div>
-          <div>Astenia Perda de Força: {asteniaPerdaDeForça}</div>
-          <div>Esplenom: {esplenom}</div>
-          <div>Chagoma: {chagoma}</div>
-          <SelectContainer>
-            <select id="sintomaSelect">
-              {sintomas &&
-                sintomas.map((sintoma: string) => (
-                  <option key={sintoma}>{sintoma}</option>
-                ))}
-            </select>
-            <div>
-              <button className="positive-buttom" onClick={setPositive}>
-                Sim
-              </button>
-              <button className="negative-buttom" onClick={setNegative}>
-                Não
-              </button>
-            </div>
-          </SelectContainer>
-        </SintomasContainer>
-        <ExamesContainer>
-          <div>Parasitológico: {parasitológico}</div>
-          <div>Parasitológico Xenodiagnóstico: {xenodiagnóstico}</div>
-          <div>Histopatológico: {histopatológico}</div>
-          <SelectContainer>
-            <select id="exameSelect">
-              {exames &&
-                exames.map((exame: string) => (
-                  <option key={exame}>{exame}</option>
-                ))}
-            </select>
-            <div>
-              <button className="positive-buttom" onClick={setPositiveExame}>
-                Positivo
-              </button>
-              <button className="negative-buttom" onClick={setNegativeExame}>
-                Negativo
-              </button>
-              <button
-                className="pendente-buttom"
-                onClick={setNotAccomplishedExame}
-              >
-                Pendente
-              </button>
-            </div>
-          </SelectContainer>
-        </ExamesContainer>
-      </SintomasExamesDiv>
-      <ResultadoContainer>
-        <div>Resultado: {resultado}</div>
-      </ResultadoContainer>
-      <Button type="button" onClick={handleSubmit}>
-        Atualizar
-      </Button>
-      <a href="/search">
-        <FiArrowLeft />
-        Voltar
-      </a>
+          <div>
+            <div>Data de nascimento: 24/04/1924</div>
+            <div>Municipio: São Paulo</div>
+          </div>
+        </DadosPacienteDiv>
+
+        <Accordion>
+          <AccordionItem>
+            <AccordionItemHeading>
+              <AccordionItemButton>
+                <TitlesAccordion>Sintomas:</TitlesAccordion>
+              </AccordionItemButton>
+            </AccordionItemHeading>
+            <AccordionItemPanel>
+              <SintomasContainer>
+                <div>Edema: {edema}</div>
+                <div>Meningoe: {meningoe}</div>
+                <div>Poliadeno: {poliadeno}</div>
+                <div>Febre: {febre}</div>
+                <div>Hepatome: {hepatome}</div>
+                <div>
+                  Insuficiência Cardíaca Congestiva:{' '}
+                  {insuficiênciaCardíacaCongestiva}
+                </div>
+                <div>Arritimias: {arritimias}</div>
+                <div>Astenia Perda de Força: {asteniaPerdaDeForça}</div>
+                <div>Esplenom: {esplenom}</div>
+                <div>Chagoma: {chagoma}</div>
+                <SelectContainer>
+                  <select id="sintomaSelect">
+                    {sintomas &&
+                      sintomas.map((sintoma: string) => (
+                        <option key={sintoma}>{sintoma}</option>
+                      ))}
+                  </select>
+                  <div>
+                    <button className="positive-buttom" onClick={setPositive}>
+                      Sim
+                    </button>
+                    <button className="negative-buttom" onClick={setNegative}>
+                      Não
+                    </button>
+                  </div>
+                </SelectContainer>
+              </SintomasContainer>
+            </AccordionItemPanel>
+          </AccordionItem>
+
+          <AccordionItem>
+            <AccordionItemHeading>
+              <AccordionItemButton>
+                <TitlesAccordion>Exames:</TitlesAccordion>
+              </AccordionItemButton>
+            </AccordionItemHeading>
+            <AccordionItemPanel>
+              <ExamesContainer>
+                <div>Parasitológico: {parasitológico}</div>
+                <div>Parasitológico Xenodiagnóstico: {xenodiagnóstico}</div>
+                <div>Histopatológico: {histopatológico}</div>
+                <SelectContainer>
+                  <select id="exameSelect">
+                    {exames &&
+                      exames.map((exame: string) => (
+                        <option key={exame}>{exame}</option>
+                      ))}
+                  </select>
+                  <div>
+                    <button
+                      className="positive-buttom"
+                      onClick={setPositiveExame}
+                    >
+                      Positivo
+                    </button>
+                    <button
+                      className="negative-buttom"
+                      onClick={setNegativeExame}
+                    >
+                      Negativo
+                    </button>
+                    <button
+                      className="pendente-buttom"
+                      onClick={setNotAccomplishedExame}
+                    >
+                      Pendente
+                    </button>
+                  </div>
+                </SelectContainer>
+              </ExamesContainer>
+              <ExamesContainer>
+                <div>
+                  Tempo de Gestação:
+                  <select onChange={changeTime}>
+                    <option disabled selected>
+                      Ignorado
+                    </option>
+                    <option>Primeiro Trimeste</option>
+                    <option>Segundo Trimeste</option>
+                    <option>Terceiro Trimeste</option>
+                    <option>Não se aplica</option>
+                  </select>
+                </div>
+              </ExamesContainer>
+            </AccordionItemPanel>
+          </AccordionItem>
+          <AccordionItem>
+            <AccordionItemHeading>
+              <AccordionItemButton>
+                <TitlesAccordion>Estados Visitados:</TitlesAccordion>
+              </AccordionItemButton>
+            </AccordionItemHeading>
+            <AccordionItemPanel>
+              <EstadosVisitados>
+                {searchValues.length > 0 &&
+                  searchValues.map((value: string, index: number) => {
+                    return (
+                      <>
+                        <div id="visitMunicipio">
+                          {searchValuesState[index]} - {value}
+                          <Button
+                            type="button"
+                            onClick={removeVisitMunicipios}
+                            value={value}
+                          >
+                            x
+                          </Button>
+                        </div>
+                      </>
+                    );
+                  })}
+              </EstadosVisitados>
+
+              <VisitMunicipiosDiv>
+                <SearchDiv>
+                  <select id="select-estado" onChange={disabledPlaceHolder}>
+                    <option id="placeHolderEstado">Estado</option>
+                    {siglasEstados &&
+                      siglasEstados.map((estado: any) => (
+                        <option key={estado.id}>{estado.initials}</option>
+                      ))}
+                  </select>
+                  <Input
+                    id="municipioPesquisa"
+                    onChange={autoComplete}
+                    name="visitMunicipio"
+                    icon={FiMapPin}
+                    placeholder="Pesquisar município"
+                  ></Input>
+                </SearchDiv>
+                <DivButtonsSearch>
+                  {sugestaoMunicipios.length < 7 &&
+                    sugestaoMunicipios.map((sugestao: any) => {
+                      return (
+                        <button
+                          type="button"
+                          key={sugestao.id}
+                          onClick={changeInput}
+                          value={sugestao.name}
+                        >
+                          {sugestao.name}
+                        </button>
+                      );
+                    })}
+                </DivButtonsSearch>
+              </VisitMunicipiosDiv>
+            </AccordionItemPanel>
+          </AccordionItem>
+        </Accordion>
+        <ResultadoContainer>
+          <div>Resultado: {resultado}</div>
+        </ResultadoContainer>
+        <Button type="submit">Atualizar</Button>
+        <a href="/search">
+          <FiArrowLeft />
+          Voltar
+        </a>
+      </Form>
     </Container>
   );
 };
