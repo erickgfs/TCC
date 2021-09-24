@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+
 import { Form } from '@unform/web';
 import {
   FiUser,
@@ -15,16 +17,50 @@ import Button from '../../components/Button';
 import api from '../../services/api';
 
 const Registration: React.FC = () => {
+  const [sexo, setSexo] = useState('');
+  const [raca, setRaca] = useState<number>();
+  const [municipio, setMunicipio] = useState<number>();
+  const [dt_nasc, setDt_nasc] = useState<string>();
+  const history = useHistory();
+
   interface DataFormats {
-    nome: string;
+    name: string;
     cpf: string;
-    municipio: string;
-    dataNascimento: string;
+    residenceUfId: number;
+    residenceMunId: number;
+    dt_nasc: string;
+    sex: string;
+    cs_raca: number;
   }
 
   function handleSubmit(data: DataFormats): void {
+    data.residenceUfId = 35;
+    data.sex = sexo;
+    if (dt_nasc)
+      data.dt_nasc = new Date(dt_nasc)
+        .toISOString()
+        .slice(0, 19)
+        .replace('T', ' ');
+    if (municipio) data.residenceMunId = municipio;
+    if (raca) data.cs_raca = raca;
+
+    api.post('/patient', data).then(response => {
+      console.log('response', response);
+      history.push('/information', data);
+    });
+
     console.log(data);
   }
+
+  const changeSexo = useCallback(() => {
+    setSexo((document.getElementById('selectSexo') as HTMLInputElement).value);
+  }, []);
+
+  const changeRaca = useCallback(() => {
+    setRaca(
+      Number((document.getElementById('selectRaca') as HTMLInputElement).value),
+    );
+  }, []);
 
   return (
     <Container>
@@ -32,37 +68,39 @@ const Registration: React.FC = () => {
         <h1>Cadastro de Paciente</h1>
         <FormContent>
           <div>
-            <Input name="nome" icon={FiUser} placeholder="Nome"></Input>
+            <Input name="name" icon={FiUser} placeholder="Nome"></Input>
             <Input name="cpf" icon={FiEdit3} placeholder="CPF"></Input>
           </div>
           <div>
             <Input
-              name="municipio"
+              name="residenceMunId"
               icon={FiMap}
               placeholder="Município"
+              onChange={e => setMunicipio(Number(e.target.value))}
             ></Input>
             <Input
-              name="dataNascimento"
+              name="dt_nasc"
               icon={FiBookmark}
               placeholder="Data de Nascimento"
+              onChange={e => setDt_nasc(e.target.value)}
             ></Input>
           </div>
           <div>
-            <select id="select-sexo">
+            <select id="selectSexo" onChange={changeSexo}>
               <option disabled selected>
                 Sexo
               </option>
-              <option>Masculino</option>
-              <option>Feminino</option>
+              <option value="M">Masculino</option>
+              <option value="F">Feminino</option>
             </select>
-            <select id="select-raca">
+            <select id="selectRaca" onChange={changeRaca}>
               <option disabled selected>
                 Raça
               </option>
-              <option>Branco</option>
-              <option>Negro</option>
-              <option>Amarelo</option>
-              <option>Pardo</option>
+              <option value={1}>Branco</option>
+              <option value={2}>Negro</option>
+              <option value={3}>Amarelo</option>
+              <option value={4}>Pardo</option>
             </select>
           </div>
           <Button type="submit">Cadastrar</Button>

@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { FiArrowLeft, FiMapPin } from 'react-icons/fi';
 import { Form } from '@unform/web';
@@ -31,6 +32,10 @@ import Button from '../../components/Button';
 import api from '../../services/api';
 
 const Informations: React.FC = () => {
+  const [name, setName] = useState();
+  const [cpf, setCpf] = useState();
+  const [dataNascimento, setDataNascimento] = useState();
+  const [municipio, setMunicipio] = useState();
   const [edema, setEdema] = useState('---');
   const [meningoe, setMeningoe] = useState('Ignorado');
   const [poliadeno, setPoliadeno] = useState('Ignorado');
@@ -47,14 +52,26 @@ const Informations: React.FC = () => {
   const [histopatológico, setHistopatológico] = useState('Ignorado');
   const [gestacao, setGestacao] = useState('Ignorado');
   const [resultado, setResultado] = useState('Fudido');
-  const [visitMunicipios, setVisitMunicipios] = useState<any>([]);
   const [siglasEstados, setSiglasEstados] = useState<any>([]);
   const [sugestaoMunicipios, setSugestaoMunicipios] = useState<any>([]);
   const [filterMunicipios, setFilterMunicipios] = useState<any>([]);
   const [searchValues, setSearchValues] = useState<any>([]);
   const [searchValuesState, setSearchValuesState] = useState<any>([]);
+  const location = useLocation<any>();
 
   useEffect(() => {
+    const { state } = location;
+
+    console.log('teste', state.cpf);
+    api.get(`/search_patient_cpf/${state.cpf}`).then(response => {
+      const { data } = response;
+      setName(data.data.name);
+      setCpf(data.data.cpf);
+      setDataNascimento(data.data.dt_nasc.split('-').reverse().join('/'));
+      setMunicipio(data.data.residenceMunId);
+      console.log('response', response);
+    });
+
     api.get('/states').then(response => {
       setSiglasEstados(response.data.data);
     });
@@ -331,12 +348,12 @@ const Informations: React.FC = () => {
       <Form onSubmit={handleSubmit}>
         <DadosPacienteDiv>
           <div>
-            <div>Nome: Farmacia Gostoso</div>
-            <div>CPF: 101.101.101-24</div>
+            <div>Nome: {name}</div>
+            <div>CPF: {cpf}</div>
           </div>
           <div>
-            <div>Data de nascimento: 24/04/1924</div>
-            <div>Municipio: São Paulo</div>
+            <div>Data de nascimento: {dataNascimento}</div>
+            <div>Municipio: {municipio}</div>
           </div>
         </DadosPacienteDiv>
 

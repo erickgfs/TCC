@@ -48,6 +48,7 @@
       "no-plusplus":"off",
       "no-param-reassign":"off",
       "react/jsx-no-bind": "off",
+      "camelcase":"off",
       "@typescript-eslint/no-use-before-define": [
         "error"
       ],
