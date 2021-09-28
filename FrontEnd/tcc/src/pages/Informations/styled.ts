@@ -234,16 +234,6 @@ export const SelectContainer = styled.div`
       }
     }
 
-    .pendente-buttom {
-      background: #fff0009c;
-      border: none;
-      box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
-
-      &:hover {
-        background: ${shade(0.2, '#fff0009c')};
-      }
-    }
-
     button {
       padding: 5px;
       margin: 0px 5px;

@@ -35,40 +35,66 @@ const Informations: React.FC = () => {
   const [name, setName] = useState();
   const [cpf, setCpf] = useState();
   const [dataNascimento, setDataNascimento] = useState();
+  const [sexo, setSexo] = useState();
   const [municipio, setMunicipio] = useState();
-  const [edema, setEdema] = useState('---');
-  const [meningoe, setMeningoe] = useState('Ignorado');
-  const [poliadeno, setPoliadeno] = useState('Ignorado');
-  const [febre, setFebre] = useState('Ignorado');
-  const [hepatome, setHepatome] = useState('Ignorado');
+  const [edema, setEdema] = useState<number>();
+  const [meningoe, setMeningoe] = useState<number>();
+  const [poliadeno, setPoliadeno] = useState<number>();
+  const [febre, setFebre] = useState<number>();
+  const [hepatome, setHepatome] = useState<number>();
   const [insuficiênciaCardíacaCongestiva, setInsuficiênciaCardíacaCongestiva] =
-    useState('Ignorado');
-  const [arritimias, setArritimias] = useState('Ignorado');
-  const [asteniaPerdaDeForça, setAsteniaPerdaDeForça] = useState('Ignorado');
-  const [esplenom, setEsplenom] = useState('Ignorado');
-  const [chagoma, setChagoma] = useState('Ignorado');
-  const [parasitológico, setParasitológico] = useState('Ignorado');
-  const [xenodiagnóstico, setXenodiagnóstico] = useState('Ignorado');
-  const [histopatológico, setHistopatológico] = useState('Ignorado');
-  const [gestacao, setGestacao] = useState('Ignorado');
+    useState<number>();
+  const [arritmias, setArritmias] = useState<number>();
+  const [asteniaPerdaDeForça, setAsteniaPerdaDeForça] = useState<number>();
+  const [esplenom, setEsplenom] = useState<number>();
+  const [chagoma, setChagoma] = useState<number>();
+  const [parasitológico, setParasitológico] = useState<number>();
+  const [xenodiagnóstico, setXenodiagnóstico] = useState<number>();
+  const [gestacao, setGestacao] = useState<number>();
   const [resultado, setResultado] = useState('Fudido');
   const [siglasEstados, setSiglasEstados] = useState<any>([]);
   const [sugestaoMunicipios, setSugestaoMunicipios] = useState<any>([]);
   const [filterMunicipios, setFilterMunicipios] = useState<any>([]);
   const [searchValues, setSearchValues] = useState<any>([]);
   const [searchValuesState, setSearchValuesState] = useState<any>([]);
+  const [visitStates, setVisitStates] = useState<any>([]);
+  const [visitCounties, setVisitCounties] = useState<any>([]);
   const location = useLocation<any>();
+
+  const populateVariables = useCallback(data => {
+    console.log('data', data);
+    setName(data.name);
+    setCpf(data.cpf);
+    setDataNascimento(data.dt_nasc.split('-').reverse().join('/'));
+    setMunicipio(data.county.name);
+    setSexo(data.sex);
+    setEdema(data.info_patient.edema);
+    setMeningoe(data.info_patient.meningoe);
+    setPoliadeno(data.info_patient.poliadeno);
+    setFebre(data.info_patient.febre);
+    setHepatome(data.info_patient.hepatome);
+    setInsuficiênciaCardíacaCongestiva(data.info_patient.sinais_icc);
+    setArritmias(data.info_patient.arritmias);
+    setAsteniaPerdaDeForça(data.info_patient.astenia);
+    setEsplenom(data.info_patient.esplenom);
+    setChagoma(data.info_patient.chagoma);
+    setParasitológico(data.info_patient.exame);
+    setXenodiagnóstico(data.info_patient.xenodiag);
+    setGestacao(data.info_patient.cs_gestant);
+  }, []);
 
   useEffect(() => {
     const { state } = location;
 
-    console.log('teste', state.cpf);
     api.get(`/search_patient_cpf/${state.cpf}`).then(response => {
       const { data } = response;
-      setName(data.data.name);
-      setCpf(data.data.cpf);
-      setDataNascimento(data.data.dt_nasc.split('-').reverse().join('/'));
-      setMunicipio(data.data.residenceMunId);
+      populateVariables(data.data);
+
+      if (data.data.sex === 'F' && data.data.info_patient.cs_gestant !== 9) {
+        (document.getElementById('tempoGestacao') as HTMLInputElement).value =
+          data.data.info_patient.cs_gestant;
+      }
+
       console.log('response', response);
     });
 
@@ -78,32 +104,55 @@ const Informations: React.FC = () => {
   }, []);
 
   function handleSubmit() {
+    const visitCountiesId = visitCounties.map((value: any) => {
+      return value.id;
+    });
+
+    const visitStatesId = visitStates.map((value: any) => {
+      return value.id;
+    });
+
     const data = {
       cpf: '101.101.101-24',
       sintomas: {
-        Edema: edema,
-        Meningoe: meningoe,
-        Poliadeno: poliadeno,
-        Febre: febre,
-        Hepatome: hepatome,
-        InsuficiênciaCardíacaCongestiva: insuficiênciaCardíacaCongestiva,
-        Arritimias: arritimias,
-        AsteniaPerdaDeForça: asteniaPerdaDeForça,
-        Esplenom: esplenom,
-        Chagoma: chagoma,
+        edema,
+        meningoe,
+        poliadeno,
+        febre,
+        hepatome,
+        sinais_icc: insuficiênciaCardíacaCongestiva,
+        arritmias,
+        astenia: asteniaPerdaDeForça,
+        esplenom,
+        chagoma,
       },
       exames: {
-        Parasitológico: parasitológico,
-        Xenodiagnóstico: xenodiagnóstico,
-        Histopatológico: histopatológico,
-        Gestação: gestacao,
+        exame: parasitológico,
+        xenodiag: xenodiagnóstico,
+        cs_gestant: gestacao,
       },
-      visitMunicipio: searchValues,
-      visitEstado: searchValuesState,
+      visitMunicipio: visitCountiesId,
+      visitEstado: visitStatesId,
     };
 
     console.log(data);
   }
+
+  const stringResultSintoma = useCallback(data => {
+    let resultString = '';
+    if (data === 1) resultString = 'Sim';
+    else if (data === 2) resultString = 'Não';
+    else resultString = 'Ignorado';
+    return resultString;
+  }, []);
+
+  const stringResultExame = useCallback(data => {
+    let resultString = '';
+    if (data === 1) resultString = 'Positivo';
+    else if (data === 2) resultString = 'Negativo';
+    else resultString = 'Ignorado';
+    return resultString;
+  }, []);
 
   const setPositive = useCallback(() => {
     const sintoma = (
@@ -112,43 +161,43 @@ const Informations: React.FC = () => {
 
     switch (sintoma) {
       case 'Edema':
-        setEdema('Sim');
+        setEdema(1);
         break;
 
       case 'Meningoe':
-        setMeningoe('Sim');
+        setMeningoe(1);
         break;
 
       case 'Poliadeno':
-        setPoliadeno('Sim');
+        setPoliadeno(1);
         break;
 
       case 'Febre':
-        setFebre('Sim');
+        setFebre(1);
         break;
 
       case 'Hepatome':
-        setHepatome('Sim');
+        setHepatome(1);
         break;
 
       case 'Insuficiência Cardíaca Congestiva':
-        setInsuficiênciaCardíacaCongestiva('Sim');
+        setInsuficiênciaCardíacaCongestiva(1);
         break;
 
-      case 'Arritimias':
-        setArritimias('Sim');
+      case 'Arritmias':
+        setArritmias(1);
         break;
 
       case 'Astenia Perda de força':
-        setAsteniaPerdaDeForça('Sim');
+        setAsteniaPerdaDeForça(1);
         break;
 
       case 'Esplenom':
-        setEsplenom('Sim');
+        setEsplenom(1);
         break;
 
       case 'Chagoma':
-        setChagoma('Sim');
+        setChagoma(1);
         break;
 
       default:
@@ -163,43 +212,43 @@ const Informations: React.FC = () => {
 
     switch (sintoma) {
       case 'Edema':
-        setEdema('Não');
+        setEdema(2);
         break;
 
       case 'Meningoe':
-        setMeningoe('Não');
+        setMeningoe(2);
         break;
 
       case 'Poliadeno':
-        setPoliadeno('Não');
+        setPoliadeno(2);
         break;
 
       case 'Febre':
-        setFebre('Não');
+        setFebre(2);
         break;
 
       case 'Hepatome':
-        setHepatome('Não');
+        setHepatome(2);
         break;
 
       case 'Insuficiência Cardíaca Congestiva':
-        setInsuficiênciaCardíacaCongestiva('Não');
+        setInsuficiênciaCardíacaCongestiva(2);
         break;
 
-      case 'Arritimias':
-        setArritimias('Não');
+      case 'Arritmias':
+        setArritmias(2);
         break;
 
       case 'Astenia Perda de força':
-        setAsteniaPerdaDeForça('Não');
+        setAsteniaPerdaDeForça(2);
         break;
 
       case 'Esplenom':
-        setEsplenom('Não');
+        setEsplenom(2);
         break;
 
       case 'Chagoma':
-        setChagoma('Não');
+        setChagoma(2);
         break;
 
       default:
@@ -213,15 +262,11 @@ const Informations: React.FC = () => {
 
     switch (exame) {
       case 'Parasitológico':
-        setParasitológico('Positivo');
+        setParasitológico(1);
         break;
 
       case 'Xenodiagnóstico':
-        setXenodiagnóstico('Positivo');
-        break;
-
-      case 'Histopatológico':
-        setHistopatológico('Positivo');
+        setXenodiagnóstico(1);
         break;
 
       default:
@@ -235,37 +280,11 @@ const Informations: React.FC = () => {
 
     switch (exame) {
       case 'Parasitológico':
-        setParasitológico('Negativo');
+        setParasitológico(2);
         break;
 
       case 'Xenodiagnóstico':
-        setXenodiagnóstico('Negativo');
-        break;
-
-      case 'Histopatológico':
-        setHistopatológico('Negativo');
-        break;
-
-      default:
-        break;
-    }
-  }, []);
-
-  const setNotAccomplishedExame = useCallback(() => {
-    const exame = (document.getElementById('exameSelect') as HTMLInputElement)
-      .value;
-
-    switch (exame) {
-      case 'Parasitológico':
-        setParasitológico('Não realizado');
-        break;
-
-      case 'Xenodiagnóstico':
-        setXenodiagnóstico('Não realizado');
-        break;
-
-      case 'Histopatológico':
-        setHistopatológico('Não realizado');
+        setXenodiagnóstico(2);
         break;
 
       default:
@@ -317,28 +336,49 @@ const Informations: React.FC = () => {
     setSugestaoMunicipios(handleSugestion(e.target.value));
   };
 
-  const changeInput = (e: any) => {
+  const changeInput = (e: any, sugestao: any) => {
     if (searchValues.length < 3) {
       if (!searchValues.includes(e.target.value)) {
         const estado = (
           document.getElementById('select-estado') as HTMLInputElement
         ).value;
+
+        api.get('/states').then(response => {
+          const states = response.data.data;
+
+          const state = states.filter((valor: any) => {
+            const valorMinusculo = valor.initials.toLowerCase();
+            const estadoMinusculo = estado.toLowerCase();
+
+            return valorMinusculo.includes(estadoMinusculo);
+          });
+
+          setVisitStates([...visitStates, state[0]]);
+        });
+
+        setVisitCounties([...visitCounties, sugestao]);
         setSearchValues([...searchValues, e.target.value]);
         setSearchValuesState([...searchValuesState, estado]);
       }
     }
   };
 
-  const removeVisitMunicipios = (e: any) => {
+  const removeVisitMunicipios = (e: any, index: number) => {
     e.preventDefault();
+    console.log(e.target.value);
 
     if (searchValues.includes(e.target.value)) {
-      const indexArray = searchValues.indexOf(e.target.value);
-      searchValuesState.splice(indexArray, 1);
+      searchValuesState.splice(index, 1);
       setSearchValuesState(searchValuesState);
 
       setSearchValues(
         searchValues.filter((values: string) => values !== e.target.value),
+      );
+
+      visitStates.splice(index, 1);
+      setVisitStates(visitStates);
+      setVisitCounties(
+        visitCounties.filter((values: any) => values.name !== e.target.value),
       );
     }
   };
@@ -366,19 +406,22 @@ const Informations: React.FC = () => {
             </AccordionItemHeading>
             <AccordionItemPanel>
               <SintomasContainer>
-                <div>Edema: {edema}</div>
-                <div>Meningoe: {meningoe}</div>
-                <div>Poliadeno: {poliadeno}</div>
-                <div>Febre: {febre}</div>
-                <div>Hepatome: {hepatome}</div>
+                <div>Edema: {stringResultSintoma(edema)}</div>
+                <div>Meningoe: {stringResultSintoma(meningoe)}</div>
+                <div>Poliadeno: {stringResultSintoma(poliadeno)}</div>
+                <div>Febre: {stringResultSintoma(febre)}</div>
+                <div>Hepatome: {stringResultSintoma(hepatome)}</div>
                 <div>
                   Insuficiência Cardíaca Congestiva:{' '}
-                  {insuficiênciaCardíacaCongestiva}
+                  {stringResultSintoma(insuficiênciaCardíacaCongestiva)}
                 </div>
-                <div>Arritimias: {arritimias}</div>
-                <div>Astenia Perda de Força: {asteniaPerdaDeForça}</div>
-                <div>Esplenom: {esplenom}</div>
-                <div>Chagoma: {chagoma}</div>
+                <div>Arritmias: {stringResultSintoma(arritmias)}</div>
+                <div>
+                  Astenia Perda de Força:{' '}
+                  {stringResultSintoma(asteniaPerdaDeForça)}
+                </div>
+                <div>Esplenom: {stringResultSintoma(esplenom)}</div>
+                <div>Chagoma: {stringResultSintoma(chagoma)}</div>
                 <SelectContainer>
                   <select id="sintomaSelect">
                     {sintomas &&
@@ -387,10 +430,18 @@ const Informations: React.FC = () => {
                       ))}
                   </select>
                   <div>
-                    <button className="positive-buttom" onClick={setPositive}>
+                    <button
+                      type="button"
+                      className="positive-buttom"
+                      onClick={setPositive}
+                    >
                       Sim
                     </button>
-                    <button className="negative-buttom" onClick={setNegative}>
+                    <button
+                      type="button"
+                      className="negative-buttom"
+                      onClick={setNegative}
+                    >
                       Não
                     </button>
                   </div>
@@ -407,9 +458,11 @@ const Informations: React.FC = () => {
             </AccordionItemHeading>
             <AccordionItemPanel>
               <ExamesContainer>
-                <div>Parasitológico: {parasitológico}</div>
-                <div>Parasitológico Xenodiagnóstico: {xenodiagnóstico}</div>
-                <div>Histopatológico: {histopatológico}</div>
+                <div>Parasitológico: {stringResultExame(parasitológico)}</div>
+                <div>
+                  Parasitológico Xenodiagnóstico:{' '}
+                  {stringResultExame(xenodiagnóstico)}
+                </div>
                 <SelectContainer>
                   <select id="exameSelect">
                     {exames &&
@@ -419,40 +472,38 @@ const Informations: React.FC = () => {
                   </select>
                   <div>
                     <button
+                      type="button"
                       className="positive-buttom"
                       onClick={setPositiveExame}
                     >
                       Positivo
                     </button>
                     <button
+                      type="button"
                       className="negative-buttom"
                       onClick={setNegativeExame}
                     >
                       Negativo
                     </button>
-                    <button
-                      className="pendente-buttom"
-                      onClick={setNotAccomplishedExame}
-                    >
-                      Pendente
-                    </button>
                   </div>
                 </SelectContainer>
               </ExamesContainer>
-              <ExamesContainer>
-                <div>
-                  Tempo de Gestação:
-                  <select onChange={changeTime}>
-                    <option disabled selected>
-                      Ignorado
-                    </option>
-                    <option>Primeiro Trimeste</option>
-                    <option>Segundo Trimeste</option>
-                    <option>Terceiro Trimeste</option>
-                    <option>Não se aplica</option>
-                  </select>
-                </div>
-              </ExamesContainer>
+              {sexo === 'F' && (
+                <ExamesContainer>
+                  <div>
+                    Tempo de Gestação:
+                    <select id="tempoGestacao" onChange={changeTime}>
+                      <option disabled selected>
+                        Ignorado
+                      </option>
+                      <option value={1}>Primeiro Trimeste</option>
+                      <option value={2}>Segundo Trimeste</option>
+                      <option value={3}>Terceiro Trimeste</option>
+                      <option value={4}>Não se aplica</option>
+                    </select>
+                  </div>
+                </ExamesContainer>
+              )}
             </AccordionItemPanel>
           </AccordionItem>
           <AccordionItem>
@@ -471,7 +522,7 @@ const Informations: React.FC = () => {
                           {searchValuesState[index]} - {value}
                           <Button
                             type="button"
-                            onClick={removeVisitMunicipios}
+                            onClick={e => removeVisitMunicipios(e, index)}
                             value={value}
                           >
                             x
@@ -506,7 +557,7 @@ const Informations: React.FC = () => {
                         <button
                           type="button"
                           key={sugestao.id}
-                          onClick={changeInput}
+                          onClick={e => changeInput(e, sugestao)}
                           value={sugestao.name}
                         >
                           {sugestao.name}

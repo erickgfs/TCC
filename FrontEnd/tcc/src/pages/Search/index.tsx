@@ -1,4 +1,6 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
+
 import { FiSearch, FiLogIn } from 'react-icons/fi';
 import { Form } from '@unform/web';
 
@@ -8,9 +10,19 @@ import Logotipo from '../../assets/Coracao-logo.png';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import api from '../../services/api';
+
+interface dataFormater {
+  cpf: string;
+}
 
 const Search: React.FC = () => {
-  function handleSubmit(data: object): void {
+  const history = useHistory();
+
+  function handleSubmit(data: dataFormater): void {
+    api.get(`/search_patient_cpf/${data.cpf}`).then(response => {
+      history.push('/information', data);
+    });
     console.log(data);
   }
 
