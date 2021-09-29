@@ -1,4 +1,5 @@
 export const sintomas = [
+  'Assintomática',
   'Edema',
   'Meningoe',
   'Poliadeno',
@@ -11,4 +12,8 @@ export const sintomas = [
   'Chagoma',
 ];
 
-export const exames = ['Parasitológico', 'Xenodiagnóstico'];
+export const exames = [
+  'Transfusão Sanguínea',
+  'Parasitológico',
+  'Xenodiagnóstico',
+];

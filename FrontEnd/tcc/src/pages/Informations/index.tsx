@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 
 import { FiArrowLeft, FiMapPin } from 'react-icons/fi';
 import { Form } from '@unform/web';
@@ -32,11 +32,13 @@ import Button from '../../components/Button';
 import api from '../../services/api';
 
 const Informations: React.FC = () => {
+  const [idPatient, setIdPatient] = useState();
   const [name, setName] = useState();
   const [cpf, setCpf] = useState();
   const [dataNascimento, setDataNascimento] = useState();
   const [sexo, setSexo] = useState();
   const [municipio, setMunicipio] = useState();
+  const [assintoma, setAssintoma] = useState<number>();
   const [edema, setEdema] = useState<number>();
   const [meningoe, setMeningoe] = useState<number>();
   const [poliadeno, setPoliadeno] = useState<number>();
@@ -50,6 +52,7 @@ const Informations: React.FC = () => {
   const [chagoma, setChagoma] = useState<number>();
   const [parasitológico, setParasitológico] = useState<number>();
   const [xenodiagnóstico, setXenodiagnóstico] = useState<number>();
+  const [historia, setHistoria] = useState<number>();
   const [gestacao, setGestacao] = useState<number>();
   const [resultado, setResultado] = useState('Fudido');
   const [siglasEstados, setSiglasEstados] = useState<any>([]);
@@ -60,14 +63,17 @@ const Informations: React.FC = () => {
   const [visitStates, setVisitStates] = useState<any>([]);
   const [visitCounties, setVisitCounties] = useState<any>([]);
   const location = useLocation<any>();
+  const history = useHistory();
 
   const populateVariables = useCallback(data => {
     console.log('data', data);
     setName(data.name);
     setCpf(data.cpf);
+    setIdPatient(data.id);
     setDataNascimento(data.dt_nasc.split('-').reverse().join('/'));
     setMunicipio(data.county.name);
     setSexo(data.sex);
+    setAssintoma(data.info_patient.assintoma);
     setEdema(data.info_patient.edema);
     setMeningoe(data.info_patient.meningoe);
     setPoliadeno(data.info_patient.poliadeno);
@@ -80,6 +86,7 @@ const Informations: React.FC = () => {
     setChagoma(data.info_patient.chagoma);
     setParasitológico(data.info_patient.exame);
     setXenodiagnóstico(data.info_patient.xenodiag);
+    setHistoria(data.info_patient.historia);
     setGestacao(data.info_patient.cs_gestant);
   }, []);
 
@@ -95,7 +102,52 @@ const Informations: React.FC = () => {
           data.data.info_patient.cs_gestant;
       }
 
-      console.log('response', response);
+      api.get('/states').then(responseStates => {
+        const statesSearch = [
+          data.data.info_patient.ant_uf_1,
+          data.data.info_patient.ant_uf_2,
+          data.data.info_patient.ant_uf_3,
+        ];
+
+        const newStatesSearch = [];
+        const newVisitState = [];
+        for (let i = 0; i < statesSearch.length; i += 1) {
+          if (statesSearch[i] !== 10000) {
+            const newState = responseStates.data.data.filter(
+              (estado: any) => estado.id === statesSearch[i],
+            );
+            newStatesSearch.push(newState[0].initials);
+            newVisitState.push(newState[0]);
+          }
+        }
+
+        setSearchValuesState(newStatesSearch);
+        setVisitStates(newVisitState);
+      });
+
+      api.get('/municipios').then(responseCounties => {
+        const countiesSearch = [
+          data.data.info_patient.mun_1,
+          data.data.info_patient.mun_2,
+          data.data.info_patient.mun_3,
+        ];
+
+        const newCountiesSearch = [];
+        const newVisitCounties = [];
+        for (let i = 0; i < countiesSearch.length; i += 1) {
+          if (countiesSearch[i] !== 10000) {
+            const newCounty = responseCounties.data.data.filter(
+              (estado: any) => estado.id === countiesSearch[i],
+            );
+
+            newCountiesSearch.push(newCounty[0].name);
+            newVisitCounties.push(newCounty[0]);
+          }
+        }
+
+        setSearchValues(newCountiesSearch);
+        setVisitCounties(newVisitCounties);
+      });
     });
 
     api.get('/states').then(response => {
@@ -104,36 +156,37 @@ const Informations: React.FC = () => {
   }, []);
 
   function handleSubmit() {
-    const visitCountiesId = visitCounties.map((value: any) => {
-      return value.id;
-    });
-
-    const visitStatesId = visitStates.map((value: any) => {
-      return value.id;
-    });
-
     const data = {
-      cpf: '101.101.101-24',
-      sintomas: {
-        edema,
-        meningoe,
-        poliadeno,
-        febre,
-        hepatome,
-        sinais_icc: insuficiênciaCardíacaCongestiva,
-        arritmias,
-        astenia: asteniaPerdaDeForça,
-        esplenom,
-        chagoma,
-      },
-      exames: {
-        exame: parasitológico,
-        xenodiag: xenodiagnóstico,
-        cs_gestant: gestacao,
-      },
-      visitMunicipio: visitCountiesId,
-      visitEstado: visitStatesId,
+      id_ocupa_n: 0,
+      assintoma,
+      edema,
+      meningoe,
+      poliadeno,
+      febre,
+      hepatome,
+      sinais_icc: insuficiênciaCardíacaCongestiva,
+      arritmias,
+      astenia: asteniaPerdaDeForça,
+      esplenom,
+      chagoma,
+      exame: parasitológico,
+      xenodiag: xenodiagnóstico,
+      historia,
+      cs_gestant: gestacao,
+      mun_1: visitCounties[0] ? visitCounties[0].id : 10000,
+      mun_2: visitCounties[1] ? visitCounties[1].id : 10000,
+      mun_3: visitCounties[2] ? visitCounties[2].id : 10000,
+      ant_uf_1: visitStates[0] ? visitStates[0].id : 10000,
+      ant_uf_2: visitStates[1] ? visitStates[1].id : 10000,
+      ant_uf_3: visitStates[2] ? visitStates[2].id : 10000,
     };
+
+    const dataReload = { cpf };
+
+    api.put(`/info_patient/${idPatient}`, data).then(response => {
+      console.log(response);
+      history.push('/information', dataReload);
+    });
 
     console.log(data);
   }
@@ -160,6 +213,10 @@ const Informations: React.FC = () => {
     ).value;
 
     switch (sintoma) {
+      case 'Assintomática':
+        setAssintoma(1);
+        break;
+
       case 'Edema':
         setEdema(1);
         break;
@@ -211,6 +268,10 @@ const Informations: React.FC = () => {
     ).value;
 
     switch (sintoma) {
+      case 'Assintomática':
+        setAssintoma(2);
+        break;
+
       case 'Edema':
         setEdema(2);
         break;
@@ -269,6 +330,10 @@ const Informations: React.FC = () => {
         setXenodiagnóstico(1);
         break;
 
+      case 'Transfusão Sanguínea':
+        setHistoria(1);
+        break;
+
       default:
         break;
     }
@@ -285,6 +350,10 @@ const Informations: React.FC = () => {
 
       case 'Xenodiagnóstico':
         setXenodiagnóstico(2);
+        break;
+
+      case 'Transfusão Sanguínea':
+        setHistoria(2);
         break;
 
       default:
@@ -406,6 +475,7 @@ const Informations: React.FC = () => {
             </AccordionItemHeading>
             <AccordionItemPanel>
               <SintomasContainer>
+                <div>Assintomático: {stringResultSintoma(assintoma)}</div>
                 <div>Edema: {stringResultSintoma(edema)}</div>
                 <div>Meningoe: {stringResultSintoma(meningoe)}</div>
                 <div>Poliadeno: {stringResultSintoma(poliadeno)}</div>
@@ -458,6 +528,7 @@ const Informations: React.FC = () => {
             </AccordionItemHeading>
             <AccordionItemPanel>
               <ExamesContainer>
+                <div>Transfusão Sanguínea: {stringResultExame(historia)}</div>
                 <div>Parasitológico: {stringResultExame(parasitológico)}</div>
                 <div>
                   Parasitológico Xenodiagnóstico:{' '}
