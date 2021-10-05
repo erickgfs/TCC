@@ -1,5 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import { AutoComplete } from 'primereact/autocomplete';
+import 'primereact/resources/themes/saga-blue/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
 
 import { Form } from '@unform/web';
 import {
@@ -21,6 +25,10 @@ const Registration: React.FC = () => {
   const [raca, setRaca] = useState<number>();
   const [municipio, setMunicipio] = useState<number>();
   const [dt_nasc, setDt_nasc] = useState<string>();
+  const [municipios, setMunicipios] = useState<any>();
+  const [municipiosFiltrados, setMunicipiosFiltrados] = useState<any>();
+  const [municipiosSelecionado, setMunicipiosSelecionado] = useState<any>();
+
   const history = useHistory();
 
   interface DataFormats {
@@ -32,6 +40,32 @@ const Registration: React.FC = () => {
     sex: string;
     cs_raca: number;
   }
+
+  useEffect(() => {
+    api.get(`/municipios/${35}`).then(response => {
+      const newResult = [];
+      const dataResponse = response.data.data;
+      for (let i = 0; i < dataResponse.length; i += 1) {
+        newResult.push(dataResponse[i].name);
+      }
+
+      setMunicipios(newResult);
+    });
+  }, []);
+
+  const searchCountry = (e: any) => {
+    console.log(e);
+
+    const newFilterMunicipios = municipios.filter((valor: any) => {
+      const valorMinusculo = valor.toLowerCase();
+      const municipioMinusculo = e.query.toLowerCase();
+
+      return valorMinusculo.includes(municipioMinusculo);
+    });
+
+    setMunicipiosFiltrados(newFilterMunicipios);
+    console.log(municipiosFiltrados);
+  };
 
   function handleSubmit(data: DataFormats): void {
     data.residenceUfId = 35;
@@ -68,19 +102,21 @@ const Registration: React.FC = () => {
         <h1>Cadastro de Paciente</h1>
         <FormContent>
           <div>
-            <Input name="name" icon={FiUser} placeholder="Nome"></Input>
-            <Input name="cpf" icon={FiEdit3} placeholder="CPF"></Input>
+            <Input name="name" placeholder="Nome"></Input>
+            <Input name="cpf" placeholder="CPF"></Input>
           </div>
           <div>
-            <Input
+            <AutoComplete
+              id="autocomplete"
+              value={municipiosSelecionado}
+              suggestions={municipiosFiltrados}
+              completeMethod={searchCountry}
               name="residenceMunId"
-              icon={FiMap}
-              placeholder="Município"
-              onChange={e => setMunicipio(Number(e.target.value))}
-            ></Input>
+              onChange={e => setMunicipiosSelecionado(e.value)}
+              placeholder="Municipio"
+            />
             <Input
               name="dt_nasc"
-              icon={FiBookmark}
               placeholder="Data de Nascimento"
               onChange={e => setDt_nasc(e.target.value)}
             ></Input>

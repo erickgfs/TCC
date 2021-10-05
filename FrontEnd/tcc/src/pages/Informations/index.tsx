@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useLocation, useHistory } from 'react-router-dom';
 
-import { FiArrowLeft, FiMapPin } from 'react-icons/fi';
+import { FiArrowLeft, FiMapPin, FiBookmark } from 'react-icons/fi';
 import { Form } from '@unform/web';
 import {
   Accordion,
@@ -14,6 +14,7 @@ import {
 import {
   Container,
   DadosPacienteDiv,
+  DataInvesti,
   SintomasContainer,
   TitlesAccordion,
   ExamesContainer,
@@ -33,11 +34,14 @@ import api from '../../services/api';
 
 const Informations: React.FC = () => {
   const [idPatient, setIdPatient] = useState();
+  const [id_ocupa_n, setId_ocupa_n] = useState<number>();
   const [name, setName] = useState();
   const [cpf, setCpf] = useState();
   const [dataNascimento, setDataNascimento] = useState();
   const [sexo, setSexo] = useState();
   const [municipio, setMunicipio] = useState();
+  const [dt_invest, setDt_invest] = useState<string>();
+  const [dt_investShow, setDt_investShow] = useState<string>();
   const [assintoma, setAssintoma] = useState<number>();
   const [edema, setEdema] = useState<number>();
   const [meningoe, setMeningoe] = useState<number>();
@@ -63,7 +67,11 @@ const Informations: React.FC = () => {
   const [visitStates, setVisitStates] = useState<any>([]);
   const [visitCounties, setVisitCounties] = useState<any>([]);
   const location = useLocation<any>();
-  const history = useHistory();
+
+  interface dataFormat {
+    dt_invest: string;
+    visitMunicipio: string;
+  }
 
   const populateVariables = useCallback(data => {
     console.log('data', data);
@@ -73,6 +81,13 @@ const Informations: React.FC = () => {
     setDataNascimento(data.dt_nasc.split('-').reverse().join('/'));
     setMunicipio(data.county.name);
     setSexo(data.sex);
+    setId_ocupa_n(data.info_patient.id_ocupa_n);
+    if (data.info_patient.dt_invest) {
+      setDt_invest(data.info_patient.dt_invest);
+      setDt_investShow(
+        data.info_patient.dt_invest.split('-').reverse().join('/'),
+      );
+    }
     setAssintoma(data.info_patient.assintoma);
     setEdema(data.info_patient.edema);
     setMeningoe(data.info_patient.meningoe);
@@ -155,9 +170,10 @@ const Informations: React.FC = () => {
     });
   }, []);
 
-  function handleSubmit() {
-    const data = {
-      id_ocupa_n: 0,
+  function handleSubmit(data: dataFormat) {
+    const form = {
+      dt_invest,
+      id_ocupa_n,
       assintoma,
       edema,
       meningoe,
@@ -181,15 +197,33 @@ const Informations: React.FC = () => {
       ant_uf_3: visitStates[2] ? visitStates[2].id : 10000,
     };
 
-    const dataReload = { cpf };
-
-    api.put(`/info_patient/${idPatient}`, data).then(response => {
+    api.put(`/info_patient/${idPatient}`, form).then(response => {
       console.log(response);
-      history.push('/information', dataReload);
+      window.location.reload();
     });
-
-    console.log(data);
+    console.log(form);
   }
+
+  const setDtInvestigation = useCallback(() => {
+    const dtInvestigation = (
+      document.getElementById('dt_invest') as HTMLInputElement
+    ).value;
+
+    if (dtInvestigation.length === 10) {
+      setDt_invest(
+        new Date(dtInvestigation).toISOString().slice(0, 19).replace('T', ' '),
+      );
+      setDt_investShow(dtInvestigation);
+    }
+  }, []);
+
+  const stringResultOcupacao = useCallback(data => {
+    let resultString = '';
+    if (data === 0) resultString = 'Não';
+    else if (data === 1) resultString = 'Sim';
+    else resultString = 'Ignorado';
+    return resultString;
+  }, []);
 
   const stringResultSintoma = useCallback(data => {
     let resultString = '';
@@ -317,6 +351,14 @@ const Informations: React.FC = () => {
     }
   }, []);
 
+  const setPositiveOcupacao = useCallback(() => {
+    setId_ocupa_n(1);
+  }, []);
+
+  const setNegativeOcupacao = useCallback(() => {
+    setId_ocupa_n(0);
+  }, []);
+
   const setPositiveExame = useCallback(() => {
     const exame = (document.getElementById('exameSelect') as HTMLInputElement)
       .value;
@@ -401,7 +443,6 @@ const Informations: React.FC = () => {
   );
 
   const autoComplete = (e: any) => {
-    console.log(handleSugestion(e.target.value));
     setSugestaoMunicipios(handleSugestion(e.target.value));
   };
 
@@ -464,10 +505,59 @@ const Informations: React.FC = () => {
             <div>Data de nascimento: {dataNascimento}</div>
             <div>Municipio: {municipio}</div>
           </div>
+          {!dt_invest || dt_invest === '' ? (
+            <DataInvesti>
+              <Input
+                id="dt_invest"
+                name="dt_invest"
+                icon={FiBookmark}
+                placeholder="Data de investigação"
+              ></Input>
+              <Button type="button" onClick={setDtInvestigation}>
+                Confirmar
+              </Button>
+            </DataInvesti>
+          ) : (
+            <div>
+              <div>Data de Investigação: {dt_investShow}</div>
+            </div>
+          )}
         </DadosPacienteDiv>
 
         <Accordion>
           <AccordionItem>
+            <AccordionItem>
+              <AccordionItemHeading>
+                <AccordionItemButton>
+                  <TitlesAccordion>Ocupação:</TitlesAccordion>
+                </AccordionItemButton>
+              </AccordionItemHeading>
+              <AccordionItemPanel>
+                <SintomasContainer>
+                  <div>
+                    Trabalha em zona Rural: {stringResultOcupacao(id_ocupa_n)}
+                  </div>
+                  <SelectContainer>
+                    <div>
+                      <button
+                        type="button"
+                        className="positive-buttom"
+                        onClick={setPositiveOcupacao}
+                      >
+                        Sim
+                      </button>
+                      <button
+                        type="button"
+                        className="negative-buttom"
+                        onClick={setNegativeOcupacao}
+                      >
+                        Não
+                      </button>
+                    </div>
+                  </SelectContainer>
+                </SintomasContainer>
+              </AccordionItemPanel>
+            </AccordionItem>
             <AccordionItemHeading>
               <AccordionItemButton>
                 <TitlesAccordion>Sintomas:</TitlesAccordion>

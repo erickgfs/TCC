@@ -40,6 +40,24 @@ export const DadosPacienteDiv = styled.div`
   margin-bottom: 10px;
 `;
 
+export const DataInvesti = styled.div`
+  display: flex;
+
+  div {
+    margin: 0;
+    padding: 5px;
+    width: 300px;
+    input {
+      font-size: 20px;
+    }
+  }
+
+  button {
+    font-size: 16px;
+    padding: 12px;
+  }
+`;
+
 export const TitlesAccordion = styled.div`
   font-size: 20px;
   border-top: 1px solid;
@@ -87,7 +105,7 @@ export const ExamesContainer = styled.div`
     border: 3px solid rgba(0, 0, 0, 0.2);
 
     &:hover {
-      border-color: #00dcb6;
+      border-color: #a6d5fa;
     }
   }
 
@@ -163,7 +181,7 @@ export const VisitMunicipiosDiv = styled.div`
     box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
 
     &:hover {
-      border-color: #00dcb6;
+      border-color: #a6d5fa;
     }
   }
 `;
@@ -206,7 +224,7 @@ export const SelectContainer = styled.div`
     border: 3px solid rgba(0, 0, 0, 0.2);
 
     &:hover {
-      border-color: #00dcb6;
+      border-color: #a6d5fa;
     }
   }
 

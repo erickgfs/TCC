@@ -53,12 +53,12 @@ export const FormContent = styled.div`
     border-radius: 10px;
     border: 1px solid #000000;
     margin: 5px;
-    padding: 10px 50px;
+    padding: 10px;
     border: 3px solid rgba(0, 0, 0, 0.2);
     box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
 
     &:hover {
-      border-color: #00dcb6;
+      border-color: #a6d5fa;
     }
   }
 
@@ -68,6 +68,46 @@ export const FormContent = styled.div`
 
     div {
       align-items: center;
+    }
+  }
+
+  .p-inputwrapper-focus {
+    border-color: #a6d5fa;
+  }
+
+  #autocomplete {
+    height: 75px;
+    width: 50%;
+    background: #fafafa;
+    border-radius: 10px;
+    align-self: center;
+    margin: 5px;
+    border: 3px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 3px 2px 1px rgb(0 0 0 / 20%);
+
+    &:hover {
+      border-color: #a6d5fa;
+    }
+
+    button {
+      height: 70px;
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+      background: transparent;
+      color: #000000;
+      border: transparent;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 30px;
+      font-family: Roboto, sans-serif;
+      color: #000000;
+
+      &:hover {
+        border-color: #a6d5fa;
+      }
     }
   }
 `;

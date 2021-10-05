@@ -1,4 +1,6 @@
 import React from 'react';
+import { useLocation, useHistory } from 'react-router-dom';
+
 import { FiUser, FiEdit, FiMail, FiLock, FiArrowLeft } from 'react-icons/fi';
 import { Form } from '@unform/web';
 
@@ -8,9 +10,26 @@ import Logotipo from '../../assets/Coracao-logo.png';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
+import api from '../../services/api';
+
+interface dataFormat {
+  name: string;
+  crm: string;
+  email: string;
+  password: string;
+  user_type: number;
+}
 
 const SingUp: React.FC = () => {
-  function handleSubmit(data: object): void {
+  const history = useHistory();
+
+  function handleSubmit(data: dataFormat): void {
+    data.user_type = 0;
+
+    api.post('/users', data).then(response => {
+      history.push('/adm-menu');
+      console.log(response);
+    });
     console.log(data);
   }
 
