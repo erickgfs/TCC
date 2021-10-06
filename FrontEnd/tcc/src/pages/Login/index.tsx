@@ -1,8 +1,8 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
 import { Form } from '@unform/web';
 
-import { AuthContext } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 import { TitleContainer, Img, FormContainer } from './styles';
 
@@ -18,7 +18,7 @@ interface LoginFormData {
 }
 
 const Login: React.FC = () => {
-  const { login } = useContext(AuthContext);
+  const { name, user_type, login } = useAuth();
 
   const handleSubmit = useCallback(
     (data: LoginFormData) => {
