@@ -26,8 +26,10 @@ const Registration: React.FC = () => {
   const [municipio, setMunicipio] = useState<number>();
   const [dt_nasc, setDt_nasc] = useState<string>();
   const [municipios, setMunicipios] = useState<any>();
+  const [municipiosResponse, setMunicipiosResponse] = useState<any>();
   const [municipiosFiltrados, setMunicipiosFiltrados] = useState<any>();
   const [municipiosSelecionado, setMunicipiosSelecionado] = useState<any>();
+  const [municipioSelecionadoId, setMunicipioSelecionadoId] = useState<any>();
 
   const history = useHistory();
 
@@ -45,6 +47,7 @@ const Registration: React.FC = () => {
     api.get(`/municipios/${35}`).then(response => {
       const newResult = [];
       const dataResponse = response.data.data;
+      setMunicipiosResponse(response.data.data);
       for (let i = 0; i < dataResponse.length; i += 1) {
         newResult.push(dataResponse[i].name);
       }
@@ -53,9 +56,21 @@ const Registration: React.FC = () => {
     });
   }, []);
 
-  const searchCountry = (e: any) => {
-    console.log(e);
+  const setValueMunicipios = useCallback((e: any) => {
+    setMunicipiosSelecionado(e);
 
+    if (municipiosResponse) {
+      const newFilterMunicipiosId = municipiosResponse.filter((valor: any) => {
+        const valorMinusculo = valor.name.toLowerCase();
+        const municipioMinusculo = e.toLowerCase();
+
+        return valorMinusculo.includes(municipioMinusculo);
+      });
+      setMunicipioSelecionadoId(newFilterMunicipiosId[0].id);
+    }
+  }, []);
+
+  const searchCountry = (e: any) => {
     const newFilterMunicipios = municipios.filter((valor: any) => {
       const valorMinusculo = valor.toLowerCase();
       const municipioMinusculo = e.query.toLowerCase();
@@ -64,7 +79,6 @@ const Registration: React.FC = () => {
     });
 
     setMunicipiosFiltrados(newFilterMunicipios);
-    console.log(municipiosFiltrados);
   };
 
   function handleSubmit(data: DataFormats): void {
@@ -75,7 +89,7 @@ const Registration: React.FC = () => {
         .toISOString()
         .slice(0, 19)
         .replace('T', ' ');
-    if (municipio) data.residenceMunId = municipio;
+    if (municipioSelecionadoId) data.residenceMunId = municipioSelecionadoId;
     if (raca) data.cs_raca = raca;
 
     api.post('/patient', data).then(response => {
@@ -112,7 +126,7 @@ const Registration: React.FC = () => {
               suggestions={municipiosFiltrados}
               completeMethod={searchCountry}
               name="residenceMunId"
-              onChange={e => setMunicipiosSelecionado(e.value)}
+              onChange={e => setValueMunicipios(e.value)}
               placeholder="Municipio"
             />
             <Input

@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useCallback, useContext } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
 import { Form } from '@unform/web';
+
+import { AuthContext } from '../../context/AuthContext';
 
 import { TitleContainer, Img, FormContainer } from './styles';
 
@@ -10,26 +12,22 @@ import Input from '../../components/Input';
 import Button from '../../components/Button';
 import api from '../../services/api';
 
+interface LoginFormData {
+  email: string;
+  password: string;
+}
+
 const Login: React.FC = () => {
-  function handleSubmit(data: object): void {
-    // api.post('/auth', data).then(response => {
-    //   console.log(response.data);
+  const { login } = useContext(AuthContext);
 
-    //   const user = {
-    //     token: response.data.token,
-    //   };
-    // });
+  const handleSubmit = useCallback(
+    (data: LoginFormData) => {
+      login({ email: data.email, password: data.password });
 
-    api.get('/municipios').then(response => {
-      console.log(response.data);
-
-      // const user = {
-      //   token: response.data.token,
-      // };
-    });
-
-    console.log(data);
-  }
+      console.log(data);
+    },
+    [login],
+  );
 
   return (
     <>
