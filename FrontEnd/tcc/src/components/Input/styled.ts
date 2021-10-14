@@ -13,6 +13,9 @@ export const Container = styled.div<ContainerProps>`
   margin: 15px 30px;
   border: 3px solid rgba(0, 0, 0, 0.2);
   box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
+  &:hover {
+    border-color: #a6d5fa;
+  }
 
   ${props =>
     props.isFocused &&

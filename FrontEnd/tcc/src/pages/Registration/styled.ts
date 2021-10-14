@@ -45,6 +45,25 @@ export const FormContent = styled.div`
   flex-direction: column;
   color: #d3d3d3;
 
+  div {
+    .inputMask {
+      background: #fafafa;
+      padding: 16px;
+      border-radius: 10px;
+      align-self: center;
+      margin: 5px;
+      border: 3px solid rgba(0, 0, 0, 0.2);
+      box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
+
+      flex: 1;
+      font-size: 30px;
+
+      &:hover {
+        border-color: #a6d5fa;
+      }
+    }
+  }
+
   select {
     width: 50%;
     height: 71px;

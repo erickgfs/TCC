@@ -1,18 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AutoComplete } from 'primereact/autocomplete';
+import InputMask from 'react-input-mask';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
 import { Form } from '@unform/web';
-import {
-  FiUser,
-  FiEdit3,
-  FiMap,
-  FiBookmark,
-  FiArrowLeft,
-} from 'react-icons/fi';
+import { FiArrowLeft } from 'react-icons/fi';
 
 import { Container, FormContent } from './styled';
 
@@ -23,6 +18,7 @@ import api from '../../services/api';
 const Registration: React.FC = () => {
   const [sexo, setSexo] = useState('');
   const [raca, setRaca] = useState<number>();
+  const [cpf, setCpf] = useState('');
   const [municipio, setMunicipio] = useState<number>();
   const [dt_nasc, setDt_nasc] = useState<string>();
   const [municipios, setMunicipios] = useState<any>();
@@ -84,6 +80,7 @@ const Registration: React.FC = () => {
   function handleSubmit(data: DataFormats): void {
     data.residenceUfId = 35;
     data.sex = sexo;
+    data.cpf = cpf;
     if (dt_nasc)
       data.dt_nasc = new Date(dt_nasc)
         .toISOString()
@@ -92,10 +89,10 @@ const Registration: React.FC = () => {
     if (municipioSelecionadoId) data.residenceMunId = municipioSelecionadoId;
     if (raca) data.cs_raca = raca;
 
-    api.post('/patient', data).then(response => {
-      console.log('response', response);
-      history.push('/information', data);
-    });
+    // api.post('/patient', data).then(response => {
+    //   console.log('response', response);
+    //   history.push('/information', data);
+    // });
 
     console.log(data);
   }
@@ -117,7 +114,13 @@ const Registration: React.FC = () => {
         <FormContent>
           <div>
             <Input name="name" placeholder="Nome"></Input>
-            <Input name="cpf" placeholder="CPF"></Input>
+            <InputMask
+              className="inputMask"
+              mask="999.999.999-99"
+              name="cpf"
+              placeholder="CPF"
+              onChange={e => setCpf(e.target.value)}
+            />
           </div>
           <div>
             <AutoComplete
@@ -129,11 +132,13 @@ const Registration: React.FC = () => {
               onChange={e => setValueMunicipios(e.value)}
               placeholder="Municipio"
             />
-            <Input
+            <InputMask
+              className="inputMask"
+              mask="99/99/9999"
               name="dt_nasc"
               placeholder="Data de Nascimento"
               onChange={e => setDt_nasc(e.target.value)}
-            ></Input>
+            />
           </div>
           <div>
             <select id="selectSexo" onChange={changeSexo}>
