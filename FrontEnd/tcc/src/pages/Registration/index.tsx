@@ -62,6 +62,7 @@ const Registration: React.FC = () => {
 
         return valorMinusculo.includes(municipioMinusculo);
       });
+
       setMunicipioSelecionadoId(newFilterMunicipiosId[0].id);
     }
   }, []);
@@ -89,10 +90,10 @@ const Registration: React.FC = () => {
     if (municipioSelecionadoId) data.residenceMunId = municipioSelecionadoId;
     if (raca) data.cs_raca = raca;
 
-    // api.post('/patient', data).then(response => {
-    //   console.log('response', response);
-    //   history.push('/information', data);
-    // });
+    api.post('/patient', data).then(response => {
+      console.log('response', response);
+      history.push('/information', data);
+    });
 
     console.log(data);
   }

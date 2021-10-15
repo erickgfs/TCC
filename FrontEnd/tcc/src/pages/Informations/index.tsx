@@ -10,6 +10,7 @@ import {
   AccordionItemButton,
   AccordionItemPanel,
 } from 'react-accessible-accordion';
+import InputMask from 'react-input-mask';
 
 import {
   Container,
@@ -163,6 +164,10 @@ const Informations: React.FC = () => {
         setSearchValues(newCountiesSearch);
         setVisitCounties(newVisitCounties);
       });
+    });
+
+    api.get(`/result/${state.cpf}`).then(responseResult => {
+      console.log(responseResult.data);
     });
 
     api.get('/states').then(response => {
@@ -507,12 +512,15 @@ const Informations: React.FC = () => {
           </div>
           {!dt_invest || dt_invest === '' ? (
             <DataInvesti>
-              <Input
-                id="dt_invest"
-                name="dt_invest"
-                icon={FiBookmark}
-                placeholder="Data de investigação"
-              ></Input>
+              <div>
+                <InputMask
+                  id="dt_invest"
+                  mask="99/99/9999"
+                  name="dt_nasc"
+                  placeholder="Data de Nascimento"
+                />
+              </div>
+
               <Button type="button" onClick={setDtInvestigation}>
                 Confirmar
               </Button>
@@ -732,6 +740,12 @@ const Informations: React.FC = () => {
         </Accordion>
         <ResultadoContainer>
           <div>Resultado: {resultado}</div>
+          <div>
+            <select>
+              <option value={0}>Chagas Negativo</option>
+              <option value={1}>Chagas Positivo</option>
+            </select>
+          </div>
         </ResultadoContainer>
         <Button type="submit">Atualizar</Button>
         <a href="/search">

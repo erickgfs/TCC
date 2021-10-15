@@ -44,17 +44,30 @@ export const DataInvesti = styled.div`
   display: flex;
 
   div {
-    margin: 0;
-    padding: 5px;
     width: 300px;
-    input {
+    #dt_invest {
+      background: #fafafa;
+
+      padding: 5px;
+      border-radius: 10px;
+      align-self: center;
+      margin: 0;
+      border: 3px solid rgba(0, 0, 0, 0.2);
+      box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
+
+      flex: 1;
       font-size: 20px;
+
+      &:hover {
+        border-color: #a6d5fa;
+      }
     }
   }
 
   button {
     font-size: 16px;
     padding: 12px;
+    margin: 0;
   }
 `;
 

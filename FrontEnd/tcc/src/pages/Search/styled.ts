@@ -49,6 +49,21 @@ export const FormContent = styled.div`
   display: flex;
   flex-direction: column;
 
+  .inputMask {
+    background: #fafafa;
+    padding: 16px;
+    border-radius: 10px;
+    align-self: center;
+    margin: 15px 30px;
+    border: 3px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
+    font-size: 30px;
+
+    &:hover {
+      border-color: #a6d5fa;
+    }
+  }
+
   h1 {
     align-self: center;
   }

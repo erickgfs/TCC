@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { FiSearch, FiLogIn } from 'react-icons/fi';
 import { Form } from '@unform/web';
+
+import InputMask from 'react-input-mask';
 
 import { TitleContainer, Img, Container, FormContent } from './styled';
 
@@ -17,9 +19,11 @@ interface dataFormater {
 }
 
 const Search: React.FC = () => {
+  const [cpf, setCpf] = useState('');
   const history = useHistory();
 
   function handleSubmit(data: dataFormater): void {
+    data.cpf = cpf;
     api.get(`/search_patient_cpf/${data.cpf}`).then(response => {
       history.push('/information', data);
     });
@@ -35,7 +39,13 @@ const Search: React.FC = () => {
         <Form onSubmit={handleSubmit}>
           <FormContent>
             <h1>Pesquisar Paciente</h1>
-            <Input name="cpf" icon={FiSearch} placeholder="CPF"></Input>
+            <InputMask
+              className="inputMask"
+              mask="999.999.999-99"
+              name="cpf"
+              placeholder="CPF"
+              onChange={e => setCpf(e.target.value)}
+            />
             <Button type="submit">Buscar</Button>
           </FormContent>
         </Form>
