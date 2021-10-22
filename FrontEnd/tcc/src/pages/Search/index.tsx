@@ -10,7 +10,6 @@ import { TitleContainer, Img, Container, FormContent } from './styled';
 
 import Logotipo from '../../assets/Coracao-logo.png';
 
-import Input from '../../components/Input';
 import Button from '../../components/Button';
 import api from '../../services/api';
 

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
-import { FiArrowLeft, FiMapPin, FiBookmark } from 'react-icons/fi';
+import { FiArrowLeft, FiMapPin } from 'react-icons/fi';
 import { Form } from '@unform/web';
 import {
   Accordion,
@@ -11,6 +11,7 @@ import {
   AccordionItemPanel,
 } from 'react-accessible-accordion';
 import InputMask from 'react-input-mask';
+import GifLoad from '../../assets/loading.gif';
 
 import {
   Container,
@@ -25,6 +26,7 @@ import {
   SearchDiv,
   DivButtonsSearch,
   SelectContainer,
+  SpanResult,
 } from './styled';
 
 import { sintomas, exames } from '../../Auxiliar';
@@ -41,6 +43,7 @@ const Informations: React.FC = () => {
   const [dataNascimento, setDataNascimento] = useState();
   const [sexo, setSexo] = useState();
   const [municipio, setMunicipio] = useState();
+  const [classi_fin, setClassi_fin] = useState<number>();
   const [dt_invest, setDt_invest] = useState<string>();
   const [dt_investShow, setDt_investShow] = useState<string>();
   const [assintoma, setAssintoma] = useState<number>();
@@ -59,7 +62,7 @@ const Informations: React.FC = () => {
   const [xenodiagnóstico, setXenodiagnóstico] = useState<number>();
   const [historia, setHistoria] = useState<number>();
   const [gestacao, setGestacao] = useState<number>();
-  const [resultado, setResultado] = useState('Fudido');
+  const [resultado, setResultado] = useState('');
   const [siglasEstados, setSiglasEstados] = useState<any>([]);
   const [sugestaoMunicipios, setSugestaoMunicipios] = useState<any>([]);
   const [filterMunicipios, setFilterMunicipios] = useState<any>([]);
@@ -67,6 +70,7 @@ const Informations: React.FC = () => {
   const [searchValuesState, setSearchValuesState] = useState<any>([]);
   const [visitStates, setVisitStates] = useState<any>([]);
   const [visitCounties, setVisitCounties] = useState<any>([]);
+  const [resultColor, setResultColor] = useState<number>(0);
   const location = useLocation<any>();
 
   interface dataFormat {
@@ -89,6 +93,7 @@ const Informations: React.FC = () => {
         data.info_patient.dt_invest.split('-').reverse().join('/'),
       );
     }
+    setClassi_fin(data.info_patient.classi_fin);
     setAssintoma(data.info_patient.assintoma);
     setEdema(data.info_patient.edema);
     setMeningoe(data.info_patient.meningoe);
@@ -167,7 +172,23 @@ const Informations: React.FC = () => {
     });
 
     api.get(`/result/${state.cpf}`).then(responseResult => {
-      console.log(responseResult.data);
+      const originalValue = responseResult.data.data.Chagas_Probabilidade;
+      const roundValue = Math.round(originalValue * 100);
+
+      if (roundValue >= 88) {
+        (document.getElementById('resultadoChagas') as HTMLInputElement).value =
+          '1';
+
+        setResultColor(2);
+      } else if (roundValue < 88 && roundValue >= 60) {
+        setResultColor(1);
+      } else {
+        setResultColor(0);
+      }
+
+      const porcentagem = roundValue.toString() + '%';
+
+      setResultado(porcentagem);
     });
 
     api.get('/states').then(response => {
@@ -739,13 +760,22 @@ const Informations: React.FC = () => {
           </AccordionItem>
         </Accordion>
         <ResultadoContainer>
-          <div>Resultado: {resultado}</div>
-          <div>
-            <select>
-              <option value={0}>Chagas Negativo</option>
-              <option value={1}>Chagas Positivo</option>
-            </select>
-          </div>
+          {resultado ? (
+            <>
+              <div>
+                Resultado:{' '}
+                <SpanResult Value={resultColor}>{resultado}</SpanResult>
+              </div>
+              <div>
+                <select id="resultadoChagas">
+                  <option value={0}>Chagas Negativo</option>
+                  <option value={1}>Chagas Positivo</option>
+                </select>
+              </div>
+            </>
+          ) : (
+            <img src={GifLoad} alt="loading..." />
+          )}
         </ResultadoContainer>
         <Button type="submit">Atualizar</Button>
         <a href="/search">

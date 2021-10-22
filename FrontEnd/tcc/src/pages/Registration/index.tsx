@@ -19,7 +19,6 @@ const Registration: React.FC = () => {
   const [sexo, setSexo] = useState('');
   const [raca, setRaca] = useState<number>();
   const [cpf, setCpf] = useState('');
-  const [municipio, setMunicipio] = useState<number>();
   const [dt_nasc, setDt_nasc] = useState<string>();
   const [municipios, setMunicipios] = useState<any>();
   const [municipiosResponse, setMunicipiosResponse] = useState<any>();
@@ -43,16 +42,16 @@ const Registration: React.FC = () => {
     api.get(`/municipios/${35}`).then(response => {
       const newResult = [];
       const dataResponse = response.data.data;
-      setMunicipiosResponse(response.data.data);
       for (let i = 0; i < dataResponse.length; i += 1) {
         newResult.push(dataResponse[i].name);
       }
 
+      setMunicipiosResponse(response.data.data);
       setMunicipios(newResult);
     });
   }, []);
 
-  const setValueMunicipios = useCallback((e: any) => {
+  const setValueMunicipios = (e: any) => {
     setMunicipiosSelecionado(e);
 
     if (municipiosResponse) {
@@ -65,7 +64,7 @@ const Registration: React.FC = () => {
 
       setMunicipioSelecionadoId(newFilterMunicipiosId[0].id);
     }
-  }, []);
+  };
 
   const searchCountry = (e: any) => {
     const newFilterMunicipios = municipios.filter((valor: any) => {

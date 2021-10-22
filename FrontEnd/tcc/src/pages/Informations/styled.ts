@@ -1,5 +1,9 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { shade } from 'polished';
+
+interface SpanProps {
+  Value: number;
+}
 
 export const Container = styled.div`
   display: flex;
@@ -128,6 +132,9 @@ export const ExamesContainer = styled.div`
 `;
 
 export const ResultadoContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: 1px solid;
   border-radius: 10px;
   padding: 10px;
@@ -139,6 +146,30 @@ export const ResultadoContainer = styled.div`
 
   div {
     padding: 2px;
+    margin: 10px;
+  }
+
+  select {
+    width: fit-content;
+    height: 41px;
+    align-self: center;
+    text-align-last: center;
+    font-size: 20px;
+    background-color: #fafafa;
+    border-radius: 10px;
+    border: 1px solid #000000;
+    margin: 5px;
+    padding: 5px 10px;
+    border: 3px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 3px 3px 2px 1px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+      border-color: #a6d5fa;
+    }
+  }
+
+  img {
+    width: 50px;
   }
 `;
 
@@ -271,4 +302,24 @@ export const SelectContainer = styled.div`
       border-radius: 5px;
     }
   }
+`;
+
+export const SpanResult = styled.span<SpanProps>`
+  ${props =>
+    props.Value === 0 &&
+    css`
+      color: #00dcb6;
+    `}
+
+  ${props =>
+    props.Value === 1 &&
+    css`
+      color: #fff000;
+    `}
+
+    ${props =>
+    props.Value === 2 &&
+    css`
+      color: #ff0000a6;
+    `}
 `;
