@@ -93,7 +93,9 @@ const Informations: React.FC = () => {
         data.info_patient.dt_invest.split('-').reverse().join('/'),
       );
     }
-    setClassi_fin(data.info_patient.classi_fin);
+    if (data.info_patient.classi_fin != null) {
+      setClassi_fin(data.info_patient.classi_fin);
+    }
     setAssintoma(data.info_patient.assintoma);
     setEdema(data.info_patient.edema);
     setMeningoe(data.info_patient.meningoe);
@@ -173,22 +175,20 @@ const Informations: React.FC = () => {
 
     api.get(`/result/${state.cpf}`).then(responseResult => {
       const originalValue = responseResult.data.data.Chagas_Probabilidade;
+      const thresHold = responseResult.data.data.Chagas_com_threshold;
       const roundValue = Math.round(originalValue * 100);
+      console.log('var', responseResult.data.data);
 
-      if (roundValue >= 88) {
-        (document.getElementById('resultadoChagas') as HTMLInputElement).value =
-          '1';
-
+      if (roundValue >= 12) {
         setResultColor(2);
-      } else if (roundValue < 88 && roundValue >= 60) {
+        setResultado('Grave');
+      } else if (roundValue < 4 && roundValue >= 7) {
         setResultColor(1);
+        setResultado('Atenção');
       } else {
         setResultColor(0);
+        setResultado('OK');
       }
-
-      const porcentagem = roundValue.toString() + '%';
-
-      setResultado(porcentagem);
     });
 
     api.get('/states').then(response => {
@@ -215,6 +215,7 @@ const Informations: React.FC = () => {
       xenodiag: xenodiagnóstico,
       historia,
       cs_gestant: gestacao,
+      classi_fin,
       mun_1: visitCounties[0] ? visitCounties[0].id : 10000,
       mun_2: visitCounties[1] ? visitCounties[1].id : 10000,
       mun_3: visitCounties[2] ? visitCounties[2].id : 10000,
@@ -224,7 +225,7 @@ const Informations: React.FC = () => {
     };
 
     api.put(`/info_patient/${idPatient}`, form).then(response => {
-      console.log(response);
+      console.log('teste', response);
       window.location.reload();
     });
     console.log(form);
@@ -767,7 +768,11 @@ const Informations: React.FC = () => {
                 <SpanResult Value={resultColor}>{resultado}</SpanResult>
               </div>
               <div>
-                <select id="resultadoChagas">
+                <select
+                  id="resultadoChagas"
+                  value={classi_fin}
+                  onChange={(e: any) => setClassi_fin(e.target.value)}
+                >
                   <option value={0}>Chagas Negativo</option>
                   <option value={1}>Chagas Positivo</option>
                 </select>
