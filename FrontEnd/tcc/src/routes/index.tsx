@@ -8,6 +8,7 @@ import Registration from '../pages/Registration';
 import Informations from '../pages/Informations';
 import AdmMenu from '../pages/AdmMenu';
 import Documentation from '../pages/Documentation';
+import ErrorNotPage from '../pages/ErrorNotPage';
 
 const Routes: React.FC = () => (
   <Switch>
@@ -18,6 +19,7 @@ const Routes: React.FC = () => (
     <Route path="/information" component={Informations} />
     <Route path="/adm-menu" component={AdmMenu} />
     <Route path="/documentation" component={Documentation} />
+    <Route path="*" component={ErrorNotPage} />
   </Switch>
 );
 

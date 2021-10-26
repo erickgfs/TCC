@@ -16,7 +16,7 @@ interface LoginCredentials {
 interface AuthContextData {
   name: string;
   user_type: string;
-  login(credentials: LoginCredentials): Promise<void>;
+  login(credentials: LoginCredentials): Promise<{}>;
   logOut(): void;
 }
 
@@ -41,15 +41,15 @@ export const AuthProvider: React.FC = ({ children }) => {
     const tokenResponse = response.data.token;
 
     const { user_type, name } = tokenDecode;
+    const userType = user_type;
+    const userName = name;
 
     localStorage.setItem('@TCC:token', tokenResponse);
     localStorage.setItem('@TCC:user_type', user_type);
     localStorage.setItem('@TCC:name', name);
 
-    console.log('user_type', user_type);
-    console.log('name', name);
-
     setData({ token: tokenResponse, user_type, name });
+    return { userType, userName };
   }, []);
 
   const logOut = useCallback(() => {

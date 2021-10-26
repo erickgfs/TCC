@@ -130,3 +130,24 @@ export const FormContent = styled.div`
     }
   }
 `;
+
+export const LogOut = styled.a`
+  display: flex;
+  align-items: center;
+  align-self: center;
+  justify-content: end;
+  text-decoration: none;
+  font-weight: bold;
+  color: #ff0000a6;
+  transition: color 0.2s;
+  margin: 10px;
+  cursor: pointer;
+
+  &:hover {
+    color: ${shade(0.2, '#ff0000a6')};
+  }
+
+  svg {
+    margin-right: 10px;
+  }
+`;

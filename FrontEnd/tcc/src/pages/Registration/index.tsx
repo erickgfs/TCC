@@ -1,15 +1,17 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { AutoComplete } from 'primereact/autocomplete';
+
 import InputMask from 'react-input-mask';
 import 'primereact/resources/themes/saga-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
 import { Form } from '@unform/web';
-import { FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiLogOut } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
 
-import { Container, FormContent } from './styled';
+import { Container, FormContent, LogOut } from './styled';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
@@ -25,6 +27,7 @@ const Registration: React.FC = () => {
   const [municipiosFiltrados, setMunicipiosFiltrados] = useState<any>();
   const [municipiosSelecionado, setMunicipiosSelecionado] = useState<any>();
   const [municipioSelecionadoId, setMunicipioSelecionadoId] = useState<any>();
+  const { name, user_type, logOut } = useAuth();
 
   const history = useHistory();
 
@@ -39,6 +42,14 @@ const Registration: React.FC = () => {
   }
 
   useEffect(() => {
+    if (
+      user_type === undefined ||
+      Number(user_type) === 1 ||
+      user_type === null
+    ) {
+      history.push('/');
+    }
+
     api.get(`/municipios/${35}`).then(response => {
       const newResult = [];
       const dataResponse = response.data.data;
@@ -77,6 +88,11 @@ const Registration: React.FC = () => {
     setMunicipiosFiltrados(newFilterMunicipios);
   };
 
+  function logOutApp(): void {
+    logOut();
+    history.push('/');
+  }
+
   function handleSubmit(data: DataFormats): void {
     data.residenceUfId = 35;
     data.sex = sexo;
@@ -108,64 +124,70 @@ const Registration: React.FC = () => {
   }, []);
 
   return (
-    <Container>
-      <Form onSubmit={handleSubmit}>
-        <h1>Cadastro de Paciente</h1>
-        <FormContent>
-          <div>
-            <Input name="name" placeholder="Nome"></Input>
-            <InputMask
-              className="inputMask"
-              mask="999.999.999-99"
-              name="cpf"
-              placeholder="CPF"
-              onChange={e => setCpf(e.target.value)}
-            />
-          </div>
-          <div>
-            <AutoComplete
-              id="autocomplete"
-              value={municipiosSelecionado}
-              suggestions={municipiosFiltrados}
-              completeMethod={searchCountry}
-              name="residenceMunId"
-              onChange={e => setValueMunicipios(e.value)}
-              placeholder="Municipio"
-            />
-            <InputMask
-              className="inputMask"
-              mask="99/99/9999"
-              name="dt_nasc"
-              placeholder="Data de Nascimento"
-              onChange={e => setDt_nasc(e.target.value)}
-            />
-          </div>
-          <div>
-            <select id="selectSexo" onChange={changeSexo}>
-              <option disabled selected>
-                Sexo
-              </option>
-              <option value="M">Masculino</option>
-              <option value="F">Feminino</option>
-            </select>
-            <select id="selectRaca" onChange={changeRaca}>
-              <option disabled selected>
-                Raça
-              </option>
-              <option value={1}>Branco</option>
-              <option value={2}>Negro</option>
-              <option value={3}>Amarelo</option>
-              <option value={4}>Pardo</option>
-            </select>
-          </div>
-          <Button type="submit">Cadastrar</Button>
-        </FormContent>
-      </Form>
-      <a href="/search">
-        <FiArrowLeft />
-        Voltar
-      </a>
-    </Container>
+    <>
+      <LogOut onClick={logOutApp}>
+        <FiLogOut />
+        Sair
+      </LogOut>
+      <Container>
+        <Form onSubmit={handleSubmit}>
+          <h1>Cadastro de Paciente</h1>
+          <FormContent>
+            <div>
+              <Input name="name" placeholder="Nome"></Input>
+              <InputMask
+                className="inputMask"
+                mask="999.999.999-99"
+                name="cpf"
+                placeholder="CPF"
+                onChange={e => setCpf(e.target.value)}
+              />
+            </div>
+            <div>
+              <AutoComplete
+                id="autocomplete"
+                value={municipiosSelecionado}
+                suggestions={municipiosFiltrados}
+                completeMethod={searchCountry}
+                name="residenceMunId"
+                onChange={e => setValueMunicipios(e.value)}
+                placeholder="Municipio"
+              />
+              <InputMask
+                className="inputMask"
+                mask="99/99/9999"
+                name="dt_nasc"
+                placeholder="Data de Nascimento"
+                onChange={e => setDt_nasc(e.target.value)}
+              />
+            </div>
+            <div>
+              <select id="selectSexo" onChange={changeSexo}>
+                <option disabled selected>
+                  Sexo
+                </option>
+                <option value="M">Masculino</option>
+                <option value="F">Feminino</option>
+              </select>
+              <select id="selectRaca" onChange={changeRaca}>
+                <option disabled selected>
+                  Raça
+                </option>
+                <option value={1}>Branco</option>
+                <option value={2}>Negro</option>
+                <option value={3}>Amarelo</option>
+                <option value={4}>Pardo</option>
+              </select>
+            </div>
+            <Button type="submit">Cadastrar</Button>
+          </FormContent>
+        </Form>
+        <a href="/search">
+          <FiArrowLeft />
+          Voltar
+        </a>
+      </Container>
+    </>
   );
 };
 

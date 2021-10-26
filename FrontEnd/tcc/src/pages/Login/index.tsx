@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { FiMail, FiLock } from 'react-icons/fi';
+import { useHistory } from 'react-router-dom';
 import { Form } from '@unform/web';
 
 import { useAuth } from '../../context/AuthContext';
@@ -10,7 +11,6 @@ import Logotipo from '../../assets/Coracao-logo.png';
 
 import Input from '../../components/Input';
 import Button from '../../components/Button';
-import api from '../../services/api';
 
 interface LoginFormData {
   email: string;
@@ -19,12 +19,24 @@ interface LoginFormData {
 
 const Login: React.FC = () => {
   const { name, user_type, login } = useAuth();
+  const history = useHistory();
 
   const handleSubmit = useCallback(
-    (data: LoginFormData) => {
-      login({ email: data.email, password: data.password });
+    async (data: LoginFormData) => {
+      const response: any = await login({
+        email: data.email,
+        password: data.password,
+      });
+      const { userType, userName } = response;
 
-      console.log(data);
+      if (Number(userType) === 0) {
+        history.push('/search', data);
+      } else if (Number(userType) === 1) {
+        history.push('/sing-up', data);
+      }
+
+      console.log('response', response);
+      console.log('user_type', user_type);
     },
     [login],
   );

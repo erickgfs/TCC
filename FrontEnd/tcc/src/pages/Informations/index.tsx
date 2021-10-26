@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 
-import { FiArrowLeft, FiMapPin } from 'react-icons/fi';
+import { FiArrowLeft, FiMapPin, FiLogOut } from 'react-icons/fi';
 import { Form } from '@unform/web';
 import {
   Accordion,
@@ -12,6 +12,7 @@ import {
 } from 'react-accessible-accordion';
 import InputMask from 'react-input-mask';
 import GifLoad from '../../assets/loading.gif';
+import { useAuth } from '../../context/AuthContext';
 
 import {
   Container,
@@ -27,6 +28,7 @@ import {
   DivButtonsSearch,
   SelectContainer,
   SpanResult,
+  LogOut,
 } from './styled';
 
 import { sintomas, exames } from '../../Auxiliar';
@@ -36,9 +38,10 @@ import Button from '../../components/Button';
 import api from '../../services/api';
 
 const Informations: React.FC = () => {
+  const { name, user_type, logOut } = useAuth();
   const [idPatient, setIdPatient] = useState();
   const [id_ocupa_n, setId_ocupa_n] = useState<number>();
-  const [name, setName] = useState();
+  const [namePatient, setNamePatient] = useState();
   const [cpf, setCpf] = useState();
   const [dataNascimento, setDataNascimento] = useState();
   const [sexo, setSexo] = useState();
@@ -72,6 +75,7 @@ const Informations: React.FC = () => {
   const [visitCounties, setVisitCounties] = useState<any>([]);
   const [resultColor, setResultColor] = useState<number>(0);
   const location = useLocation<any>();
+  const history = useHistory();
 
   interface dataFormat {
     dt_invest: string;
@@ -79,8 +83,7 @@ const Informations: React.FC = () => {
   }
 
   const populateVariables = useCallback(data => {
-    console.log('data', data);
-    setName(data.name);
+    setNamePatient(data.name);
     setCpf(data.cpf);
     setIdPatient(data.id);
     setDataNascimento(data.dt_nasc.split('-').reverse().join('/'));
@@ -115,6 +118,13 @@ const Informations: React.FC = () => {
 
   useEffect(() => {
     const { state } = location;
+    if (
+      user_type === undefined ||
+      Number(user_type) === 1 ||
+      user_type === null
+    ) {
+      history.push('/');
+    }
 
     api.get(`/search_patient_cpf/${state.cpf}`).then(response => {
       const { data } = response;
@@ -175,7 +185,6 @@ const Informations: React.FC = () => {
 
     api.get(`/result/${state.cpf}`).then(responseResult => {
       const originalValue = responseResult.data.data.Chagas_Probabilidade;
-      const thresHold = responseResult.data.data.Chagas_com_threshold;
       const roundValue = Math.round(originalValue * 100);
       console.log('var', responseResult.data.data);
 
@@ -195,6 +204,11 @@ const Informations: React.FC = () => {
       setSiglasEstados(response.data.data);
     });
   }, []);
+
+  function logOutApp(): void {
+    logOut();
+    history.push('/');
+  }
 
   function handleSubmit(data: dataFormat) {
     const form = {
@@ -521,65 +535,121 @@ const Informations: React.FC = () => {
   };
 
   return (
-    <Container>
-      <Form onSubmit={handleSubmit}>
-        <DadosPacienteDiv>
-          <div>
-            <div>Nome: {name}</div>
-            <div>CPF: {cpf}</div>
-          </div>
-          <div>
-            <div>Data de nascimento: {dataNascimento}</div>
-            <div>Municipio: {municipio}</div>
-          </div>
-          {!dt_invest || dt_invest === '' ? (
-            <DataInvesti>
-              <div>
-                <InputMask
-                  id="dt_invest"
-                  mask="99/99/9999"
-                  name="dt_nasc"
-                  placeholder="Data de Nascimento"
-                />
-              </div>
-
-              <Button type="button" onClick={setDtInvestigation}>
-                Confirmar
-              </Button>
-            </DataInvesti>
-          ) : (
+    <>
+      <LogOut onClick={logOutApp}>
+        <FiLogOut />
+        Sair
+      </LogOut>
+      <Container>
+        <Form onSubmit={handleSubmit}>
+          <DadosPacienteDiv>
             <div>
-              <div>Data de Investigação: {dt_investShow}</div>
+              <div>Nome: {namePatient}</div>
+              <div>CPF: {cpf}</div>
             </div>
-          )}
-        </DadosPacienteDiv>
+            <div>
+              <div>Data de nascimento: {dataNascimento}</div>
+              <div>Municipio: {municipio}</div>
+            </div>
+            {!dt_invest || dt_invest === '' ? (
+              <DataInvesti>
+                <div>
+                  <InputMask
+                    id="dt_invest"
+                    mask="99/99/9999"
+                    name="dt_nasc"
+                    placeholder="Data de Nascimento"
+                  />
+                </div>
 
-        <Accordion>
-          <AccordionItem>
+                <Button type="button" onClick={setDtInvestigation}>
+                  Confirmar
+                </Button>
+              </DataInvesti>
+            ) : (
+              <div>
+                <div>Data de Investigação: {dt_investShow}</div>
+              </div>
+            )}
+          </DadosPacienteDiv>
+
+          <Accordion>
             <AccordionItem>
+              <AccordionItem>
+                <AccordionItemHeading>
+                  <AccordionItemButton>
+                    <TitlesAccordion>Ocupação:</TitlesAccordion>
+                  </AccordionItemButton>
+                </AccordionItemHeading>
+                <AccordionItemPanel>
+                  <SintomasContainer>
+                    <div>
+                      Trabalha em zona Rural: {stringResultOcupacao(id_ocupa_n)}
+                    </div>
+                    <SelectContainer>
+                      <div>
+                        <button
+                          type="button"
+                          className="positive-buttom"
+                          onClick={setPositiveOcupacao}
+                        >
+                          Sim
+                        </button>
+                        <button
+                          type="button"
+                          className="negative-buttom"
+                          onClick={setNegativeOcupacao}
+                        >
+                          Não
+                        </button>
+                      </div>
+                    </SelectContainer>
+                  </SintomasContainer>
+                </AccordionItemPanel>
+              </AccordionItem>
               <AccordionItemHeading>
                 <AccordionItemButton>
-                  <TitlesAccordion>Ocupação:</TitlesAccordion>
+                  <TitlesAccordion>Sintomas:</TitlesAccordion>
                 </AccordionItemButton>
               </AccordionItemHeading>
               <AccordionItemPanel>
                 <SintomasContainer>
+                  <div>Assintomático: {stringResultSintoma(assintoma)}</div>
+                  <div>Edema: {stringResultSintoma(edema)}</div>
+                  <div>Meningoe: {stringResultSintoma(meningoe)}</div>
+                  <div>Poliadeno: {stringResultSintoma(poliadeno)}</div>
+                  <div>Febre: {stringResultSintoma(febre)}</div>
+                  <div>Hepatome: {stringResultSintoma(hepatome)}</div>
                   <div>
-                    Trabalha em zona Rural: {stringResultOcupacao(id_ocupa_n)}
+                    Insuficiência Cardíaca Congestiva:{' '}
+                    {stringResultSintoma(insuficiênciaCardíacaCongestiva)}
                   </div>
+                  <div>Arritmias: {stringResultSintoma(arritmias)}</div>
+                  <div>
+                    Astenia Perda de Força:{' '}
+                    {stringResultSintoma(asteniaPerdaDeForça)}
+                  </div>
+                  <div>Esplenom: {stringResultSintoma(esplenom)}</div>
+                  <div>Chagoma: {stringResultSintoma(chagoma)}</div>
                   <SelectContainer>
+                    <select id="sintomaSelect">
+                      {sintomas &&
+                        sintomas.map((sintoma: string) => (
+                          <option key={sintoma}>{sintoma}</option>
+                        ))}
+                    </select>
                     <div>
                       <button
                         type="button"
                         className="positive-buttom"
-                        onClick={setPositiveOcupacao}
+                        onClick={setPositive}
                       >
                         Sim
                       </button>
                       <button
                         type="button"
                         className="negative-buttom"
-                        onClick={setNegativeOcupacao}
+                        onClick={setNegative}
                       >
                         Não
                       </button>
@@ -588,207 +658,157 @@ const Informations: React.FC = () => {
                 </SintomasContainer>
               </AccordionItemPanel>
             </AccordionItem>
-            <AccordionItemHeading>
-              <AccordionItemButton>
-                <TitlesAccordion>Sintomas:</TitlesAccordion>
-              </AccordionItemButton>
-            </AccordionItemHeading>
-            <AccordionItemPanel>
-              <SintomasContainer>
-                <div>Assintomático: {stringResultSintoma(assintoma)}</div>
-                <div>Edema: {stringResultSintoma(edema)}</div>
-                <div>Meningoe: {stringResultSintoma(meningoe)}</div>
-                <div>Poliadeno: {stringResultSintoma(poliadeno)}</div>
-                <div>Febre: {stringResultSintoma(febre)}</div>
-                <div>Hepatome: {stringResultSintoma(hepatome)}</div>
-                <div>
-                  Insuficiência Cardíaca Congestiva:{' '}
-                  {stringResultSintoma(insuficiênciaCardíacaCongestiva)}
-                </div>
-                <div>Arritmias: {stringResultSintoma(arritmias)}</div>
-                <div>
-                  Astenia Perda de Força:{' '}
-                  {stringResultSintoma(asteniaPerdaDeForça)}
-                </div>
-                <div>Esplenom: {stringResultSintoma(esplenom)}</div>
-                <div>Chagoma: {stringResultSintoma(chagoma)}</div>
-                <SelectContainer>
-                  <select id="sintomaSelect">
-                    {sintomas &&
-                      sintomas.map((sintoma: string) => (
-                        <option key={sintoma}>{sintoma}</option>
-                      ))}
-                  </select>
-                  <div>
-                    <button
-                      type="button"
-                      className="positive-buttom"
-                      onClick={setPositive}
-                    >
-                      Sim
-                    </button>
-                    <button
-                      type="button"
-                      className="negative-buttom"
-                      onClick={setNegative}
-                    >
-                      Não
-                    </button>
-                  </div>
-                </SelectContainer>
-              </SintomasContainer>
-            </AccordionItemPanel>
-          </AccordionItem>
 
-          <AccordionItem>
-            <AccordionItemHeading>
-              <AccordionItemButton>
-                <TitlesAccordion>Exames:</TitlesAccordion>
-              </AccordionItemButton>
-            </AccordionItemHeading>
-            <AccordionItemPanel>
-              <ExamesContainer>
-                <div>Transfusão Sanguínea: {stringResultExame(historia)}</div>
-                <div>Parasitológico: {stringResultExame(parasitológico)}</div>
-                <div>
-                  Parasitológico Xenodiagnóstico:{' '}
-                  {stringResultExame(xenodiagnóstico)}
-                </div>
-                <SelectContainer>
-                  <select id="exameSelect">
-                    {exames &&
-                      exames.map((exame: string) => (
-                        <option key={exame}>{exame}</option>
-                      ))}
-                  </select>
-                  <div>
-                    <button
-                      type="button"
-                      className="positive-buttom"
-                      onClick={setPositiveExame}
-                    >
-                      Positivo
-                    </button>
-                    <button
-                      type="button"
-                      className="negative-buttom"
-                      onClick={setNegativeExame}
-                    >
-                      Negativo
-                    </button>
-                  </div>
-                </SelectContainer>
-              </ExamesContainer>
-              {sexo === 'F' && (
+            <AccordionItem>
+              <AccordionItemHeading>
+                <AccordionItemButton>
+                  <TitlesAccordion>Exames:</TitlesAccordion>
+                </AccordionItemButton>
+              </AccordionItemHeading>
+              <AccordionItemPanel>
                 <ExamesContainer>
+                  <div>Transfusão Sanguínea: {stringResultExame(historia)}</div>
+                  <div>Parasitológico: {stringResultExame(parasitológico)}</div>
                   <div>
-                    Tempo de Gestação:
-                    <select id="tempoGestacao" onChange={changeTime}>
-                      <option disabled selected>
-                        Ignorado
-                      </option>
-                      <option value={1}>Primeiro Trimeste</option>
-                      <option value={2}>Segundo Trimeste</option>
-                      <option value={3}>Terceiro Trimeste</option>
-                      <option value={4}>Não se aplica</option>
-                    </select>
+                    Parasitológico Xenodiagnóstico:{' '}
+                    {stringResultExame(xenodiagnóstico)}
                   </div>
+                  <SelectContainer>
+                    <select id="exameSelect">
+                      {exames &&
+                        exames.map((exame: string) => (
+                          <option key={exame}>{exame}</option>
+                        ))}
+                    </select>
+                    <div>
+                      <button
+                        type="button"
+                        className="positive-buttom"
+                        onClick={setPositiveExame}
+                      >
+                        Positivo
+                      </button>
+                      <button
+                        type="button"
+                        className="negative-buttom"
+                        onClick={setNegativeExame}
+                      >
+                        Negativo
+                      </button>
+                    </div>
+                  </SelectContainer>
                 </ExamesContainer>
-              )}
-            </AccordionItemPanel>
-          </AccordionItem>
-          <AccordionItem>
-            <AccordionItemHeading>
-              <AccordionItemButton>
-                <TitlesAccordion>Estados Visitados:</TitlesAccordion>
-              </AccordionItemButton>
-            </AccordionItemHeading>
-            <AccordionItemPanel>
-              <EstadosVisitados>
-                {searchValues.length > 0 &&
-                  searchValues.map((value: string, index: number) => {
-                    return (
-                      <>
-                        <div id="visitMunicipio">
-                          {searchValuesState[index]} - {value}
-                          <Button
-                            type="button"
-                            onClick={e => removeVisitMunicipios(e, index)}
-                            value={value}
-                          >
-                            x
-                          </Button>
-                        </div>
-                      </>
-                    );
-                  })}
-              </EstadosVisitados>
-
-              <VisitMunicipiosDiv>
-                <SearchDiv>
-                  <select id="select-estado" onChange={disabledPlaceHolder}>
-                    <option id="placeHolderEstado">Estado</option>
-                    {siglasEstados &&
-                      siglasEstados.map((estado: any) => (
-                        <option key={estado.id}>{estado.initials}</option>
-                      ))}
-                  </select>
-                  <Input
-                    id="municipioPesquisa"
-                    onChange={autoComplete}
-                    name="visitMunicipio"
-                    icon={FiMapPin}
-                    placeholder="Pesquisar município"
-                  ></Input>
-                </SearchDiv>
-                <DivButtonsSearch>
-                  {sugestaoMunicipios.length < 7 &&
-                    sugestaoMunicipios.map((sugestao: any) => {
+                {sexo === 'F' && (
+                  <ExamesContainer>
+                    <div>
+                      Tempo de Gestação:
+                      <select id="tempoGestacao" onChange={changeTime}>
+                        <option disabled selected>
+                          Ignorado
+                        </option>
+                        <option value={1}>Primeiro Trimeste</option>
+                        <option value={2}>Segundo Trimeste</option>
+                        <option value={3}>Terceiro Trimeste</option>
+                        <option value={4}>Não se aplica</option>
+                      </select>
+                    </div>
+                  </ExamesContainer>
+                )}
+              </AccordionItemPanel>
+            </AccordionItem>
+            <AccordionItem>
+              <AccordionItemHeading>
+                <AccordionItemButton>
+                  <TitlesAccordion>Estados Visitados:</TitlesAccordion>
+                </AccordionItemButton>
+              </AccordionItemHeading>
+              <AccordionItemPanel>
+                <EstadosVisitados>
+                  {searchValues.length > 0 &&
+                    searchValues.map((value: string, index: number) => {
                       return (
-                        <button
-                          type="button"
-                          key={sugestao.id}
-                          onClick={e => changeInput(e, sugestao)}
-                          value={sugestao.name}
-                        >
-                          {sugestao.name}
-                        </button>
+                        <>
+                          <div id="visitMunicipio">
+                            {searchValuesState[index]} - {value}
+                            <Button
+                              type="button"
+                              onClick={e => removeVisitMunicipios(e, index)}
+                              value={value}
+                            >
+                              x
+                            </Button>
+                          </div>
+                        </>
                       );
                     })}
-                </DivButtonsSearch>
-              </VisitMunicipiosDiv>
-            </AccordionItemPanel>
-          </AccordionItem>
-        </Accordion>
-        <ResultadoContainer>
-          {resultado ? (
-            <>
-              <div>
-                Resultado:{' '}
-                <SpanResult Value={resultColor}>{resultado}</SpanResult>
-              </div>
-              <div>
-                <select
-                  id="resultadoChagas"
-                  value={classi_fin}
-                  onChange={(e: any) => setClassi_fin(e.target.value)}
-                >
-                  <option value={0}>Chagas Negativo</option>
-                  <option value={1}>Chagas Positivo</option>
-                </select>
-              </div>
-            </>
-          ) : (
-            <img src={GifLoad} alt="loading..." />
-          )}
-        </ResultadoContainer>
-        <Button type="submit">Atualizar</Button>
-        <a href="/search">
-          <FiArrowLeft />
-          Voltar
-        </a>
-      </Form>
-    </Container>
+                </EstadosVisitados>
+
+                <VisitMunicipiosDiv>
+                  <SearchDiv>
+                    <select id="select-estado" onChange={disabledPlaceHolder}>
+                      <option id="placeHolderEstado">Estado</option>
+                      {siglasEstados &&
+                        siglasEstados.map((estado: any) => (
+                          <option key={estado.id}>{estado.initials}</option>
+                        ))}
+                    </select>
+                    <Input
+                      id="municipioPesquisa"
+                      onChange={autoComplete}
+                      name="visitMunicipio"
+                      icon={FiMapPin}
+                      placeholder="Pesquisar município"
+                    ></Input>
+                  </SearchDiv>
+                  <DivButtonsSearch>
+                    {sugestaoMunicipios.length < 7 &&
+                      sugestaoMunicipios.map((sugestao: any) => {
+                        return (
+                          <button
+                            type="button"
+                            key={sugestao.id}
+                            onClick={e => changeInput(e, sugestao)}
+                            value={sugestao.name}
+                          >
+                            {sugestao.name}
+                          </button>
+                        );
+                      })}
+                  </DivButtonsSearch>
+                </VisitMunicipiosDiv>
+              </AccordionItemPanel>
+            </AccordionItem>
+          </Accordion>
+          <ResultadoContainer>
+            {resultado ? (
+              <>
+                <div>
+                  Resultado:{' '}
+                  <SpanResult Value={resultColor}>{resultado}</SpanResult>
+                </div>
+                <div>
+                  <select
+                    id="resultadoChagas"
+                    value={classi_fin}
+                    onChange={(e: any) => setClassi_fin(e.target.value)}
+                  >
+                    <option value={0}>Chagas Negativo</option>
+                    <option value={1}>Chagas Positivo</option>
+                  </select>
+                </div>
+              </>
+            ) : (
+              <img src={GifLoad} alt="loading..." />
+            )}
+          </ResultadoContainer>
+          <Button type="submit">Atualizar</Button>
+          <a href="/search">
+            <FiArrowLeft />
+            Voltar
+          </a>
+        </Form>
+      </Container>
+    </>
   );
 };
 

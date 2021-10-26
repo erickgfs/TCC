@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { FiSearch, FiLogIn } from 'react-icons/fi';
+import { FiLogIn, FiLogOut } from 'react-icons/fi';
 import { Form } from '@unform/web';
 
 import InputMask from 'react-input-mask';
+import { useAuth } from '../../context/AuthContext';
 
-import { TitleContainer, Img, Container, FormContent } from './styled';
+import { TitleContainer, Img, Container, FormContent, LogOut } from './styled';
 
 import Logotipo from '../../assets/Coracao-logo.png';
 
@@ -18,8 +19,25 @@ interface dataFormater {
 }
 
 const Search: React.FC = () => {
+  const { name, user_type, logOut } = useAuth();
+
   const [cpf, setCpf] = useState('');
   const history = useHistory();
+
+  useEffect(() => {
+    if (
+      user_type === undefined ||
+      Number(user_type) === 1 ||
+      user_type === null
+    ) {
+      history.push('/');
+    }
+  }, []);
+
+  function logOutApp(): void {
+    logOut();
+    history.push('/');
+  }
 
   function handleSubmit(data: dataFormater): void {
     data.cpf = cpf;
@@ -31,6 +49,10 @@ const Search: React.FC = () => {
 
   return (
     <>
+      <LogOut onClick={logOutApp}>
+        <FiLogOut />
+        Sair
+      </LogOut>
       <TitleContainer>
         <Img src={Logotipo} alt="Logotipo" />
       </TitleContainer>

@@ -1,10 +1,18 @@
-import React from 'react';
-import { useLocation, useHistory } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 
-import { FiUser, FiEdit, FiMail, FiLock, FiArrowLeft } from 'react-icons/fi';
+import {
+  FiUser,
+  FiEdit,
+  FiMail,
+  FiLock,
+  FiArrowLeft,
+  FiLogOut,
+} from 'react-icons/fi';
 import { Form } from '@unform/web';
 
-import { TitleContainer, Img, FormContainer } from './styles';
+import { TitleContainer, Img, FormContainer, LogOut } from './styles';
+import { useAuth } from '../../context/AuthContext';
 
 import Logotipo from '../../assets/Coracao-logo.png';
 
@@ -21,13 +29,29 @@ interface dataFormat {
 }
 
 const SingUp: React.FC = () => {
+  const { name, user_type, logOut } = useAuth();
   const history = useHistory();
+
+  useEffect(() => {
+    if (
+      user_type === undefined ||
+      Number(user_type) === 0 ||
+      user_type === null
+    ) {
+      history.push('/');
+    }
+  }, []);
+
+  function logOutApp(): void {
+    logOut();
+    history.push('/');
+  }
 
   function handleSubmit(data: dataFormat): void {
     data.user_type = 0;
 
     api.post('/users', data).then(response => {
-      history.push('/adm-menu');
+      window.location.reload();
       console.log(response);
     });
     console.log(data);
@@ -35,6 +59,10 @@ const SingUp: React.FC = () => {
 
   return (
     <>
+      <LogOut onClick={logOutApp}>
+        <FiLogOut />
+        Sair
+      </LogOut>
       <TitleContainer>
         <Img src={Logotipo} alt="Logotipo" />
       </TitleContainer>
@@ -51,10 +79,10 @@ const SingUp: React.FC = () => {
             placeholder="Senha"
           ></Input>
           <Button type="submit">Cadastrar</Button>
-          <a href="/search">
+          {/* <a href="/search">
             <FiArrowLeft />
             Voltar
-          </a>
+          </a> */}
         </FormContainer>
       </Form>
     </>
