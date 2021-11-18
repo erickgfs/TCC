@@ -36,20 +36,29 @@ export const AuthProvider: React.FC = ({ children }) => {
   });
 
   const login = useCallback(async ({ email, password }) => {
-    const response = await api.post('/auth', { email, password });
-    const tokenDecode: any = jwt_decode(response.data.token);
-    const tokenResponse = response.data.token;
+    let response: any = {};
+    try {
+      response = await api.post('/auth', { email, password });
 
-    const { user_type, name } = tokenDecode;
-    const userType = user_type;
-    const userName = name;
+      const tokenDecode: any = jwt_decode(response.data.token);
+      const tokenResponse = response.data.token;
 
-    localStorage.setItem('@TCC:token', tokenResponse);
-    localStorage.setItem('@TCC:user_type', user_type);
-    localStorage.setItem('@TCC:name', name);
+      const { user_type, name } = tokenDecode;
+      const userType = user_type;
+      const userName = name;
 
-    setData({ token: tokenResponse, user_type, name });
-    return { userType, userName };
+      localStorage.setItem('@TCC:token', tokenResponse);
+      localStorage.setItem('@TCC:user_type', user_type);
+      localStorage.setItem('@TCC:name', name);
+
+      setData({ token: tokenResponse, user_type, name });
+      return { userType, userName };
+    } catch (e) {
+      alert('Login incorreto');
+      const userType = null;
+      const userName = null;
+      return { userType, userName };
+    }
   }, []);
 
   const logOut = useCallback(() => {
