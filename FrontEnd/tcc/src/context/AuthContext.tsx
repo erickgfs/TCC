@@ -36,9 +36,8 @@ export const AuthProvider: React.FC = ({ children }) => {
   });
 
   const login = useCallback(async ({ email, password }) => {
-    let response: any = {};
     try {
-      response = await api.post('/auth', { email, password });
+      const response = await api.post('/auth', { email, password });
 
       const tokenDecode: any = jwt_decode(response.data.token);
       const tokenResponse = response.data.token;

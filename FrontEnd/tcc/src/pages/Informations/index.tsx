@@ -183,22 +183,29 @@ const Informations: React.FC = () => {
       });
     });
 
-    api.get(`/result/${state.cpf}`).then(responseResult => {
-      const originalValue = responseResult.data.data.Chagas_Probabilidade;
-      const roundValue = Math.round(originalValue * 100);
-      console.log('var', responseResult.data.data);
+    if (classi_fin !== null) {
+      api.get(`/result/${state.cpf}`).then(responseResult => {
+        const originalValue = responseResult.data.data.Chagas_Probabilidade;
+        const realValue = originalValue * 100;
+        const roundValue = Math.round(originalValue * 100);
 
-      if (roundValue >= 12) {
-        setResultColor(2);
-        setResultado('Grave');
-      } else if (roundValue < 4 && roundValue >= 7) {
-        setResultColor(1);
-        setResultado('Atenção');
-      } else {
-        setResultColor(0);
-        setResultado('OK');
-      }
-    });
+        if (roundValue >= 12) {
+          setResultColor(2);
+          const porcentagem = ((100 - 75) / 88) * realValue + 75;
+          setResultado(porcentagem.toFixed(2).toString() + '%');
+        } else if (roundValue > 9 && roundValue <= 11) {
+          setResultColor(1);
+          const porcentagem = ((75 - 50) / 12) * realValue + 50;
+          setResultado(porcentagem.toFixed(2).toString() + '%');
+        } else {
+          setResultColor(0);
+          const porcentagem = (50 / 10) * realValue;
+          setResultado(porcentagem.toFixed(2).toString() + '%');
+        }
+      });
+    } else {
+      setResultado('---');
+    }
 
     api.get('/states').then(response => {
       setSiglasEstados(response.data.data);
@@ -783,7 +790,7 @@ const Informations: React.FC = () => {
             {resultado ? (
               <>
                 <div>
-                  Resultado:{' '}
+                  Probabilidade:{' '}
                   <SpanResult Value={resultColor}>{resultado}</SpanResult>
                 </div>
                 <div>
